@@ -1,0 +1,112 @@
+<ion-content fullscreen class="ion-padding">
+  <form (submit)="onSubmit($event)">
+
+    <!-- Quiz title -->
+    <ion-card>
+      <ion-card-content>
+        <ion-item>
+          <ion-icon name="create-outline" slot="start"></ion-icon>
+          <ion-input
+            id="quiz-title"
+            label="Quiz Title"
+            labelPlacement="stacked"
+            placeholder="Enter quiz title"
+            [formField]="quizForm.title">
+          </ion-input>
+        </ion-item>
+
+        @if(quizForm.title().touched() && quizForm.title().invalid()) {
+          <ion-text color="danger">
+            <ul>
+              @for (error of quizForm.title().errors(); track error) {
+                <li>{{ error.message }}</li>
+              }
+            </ul>
+          </ion-text>
+        }
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Quiz description -->
+    <ion-card>
+      <ion-card-content>
+        <ion-item>
+          <ion-icon name="document-text-outline" slot="start"></ion-icon>
+          <ion-input
+            id="quiz-description"
+            label="Quiz Description"
+            labelPlacement="stacked"
+            placeholder="Enter quiz description"
+            [formField]="quizForm.description">
+          </ion-input>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Questions -->
+    @for(question of quizForm.questions; track $index) {
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
+            Question {{ $index + 1 }}
+          </ion-card-title>
+        </ion-card-header>
+
+        <ion-card-content>
+
+          <ion-item>
+            <ion-icon name="help-circle-outline" slot="start"></ion-icon>
+            <ion-input
+              id="question-{{$index}}"
+              label="Question"
+              labelPlacement="stacked"
+              placeholder="Enter question text"
+              [formField]="question.text">
+            </ion-input>
+          </ion-item>
+
+          <ion-text color="medium">
+            <p class="options-title">Options</p>
+          </ion-text>
+
+          @for(option of question.options; track option.id()) {
+            <ion-item lines="full">
+              <ion-input
+                placeholder="Option text"
+                [formField]="option.text">
+              </ion-input>
+
+              <ion-checkbox
+                slot="end"
+                [formField]="option.isCorrect">
+              </ion-checkbox>
+            </ion-item>
+          }
+
+        </ion-card-content>
+      </ion-card>
+    }
+
+    <!-- Buttons -->
+    <div class="buttons">
+      <ion-button
+        expand="block"
+        color="primary"
+        fill="outline"
+        (click)="addQuestion()"
+        type="button">
+        <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+        Add Question
+      </ion-button>
+
+      <ion-button
+        expand="block"
+        color="success"
+        type="submit">
+        <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+        Submit Quiz
+      </ion-button>
+    </div>
+
+  </form>
+</ion-content>

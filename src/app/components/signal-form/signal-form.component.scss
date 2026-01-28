@@ -1,0 +1,47 @@
+ion-content {
+  --background: var(--ion-color-light);
+}
+
+form {
+  max-width: 900px;
+  margin: auto;
+}
+
+ion-card {
+  margin-bottom: 16px;
+}
+
+ion-card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.options-title {
+  margin: 12px 0 6px;
+  font-size: 0.9rem;
+}
+
+ion-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+}
+
+ion-input {
+  font-size: 0.95rem;
+}
+
+ion-checkbox {
+  margin-left: 12px;
+}
+
+ion-text ul {
+  margin: 4px 0 0 0;
+  padding-left: 16px;
+}
+
+.buttons {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
