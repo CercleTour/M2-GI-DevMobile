@@ -8,7 +8,7 @@ import {
   IonContent, 
   IonGrid, 
   IonRow,
-  IonCol,
+  IonCol
 } from '@ionic/angular/standalone';
 import { QuizCardComponent } from '../quiz-card/quiz-card.component';
 /*
@@ -39,12 +39,8 @@ export class HomePageComponent  implements OnInit {
   constructor(private quizService: QuizService) { }
   
   ngOnInit() {
-    this.quizService.getAll()
-    .then(quizzes => 
-      {
-        this.quizzes = quizzes;
-        this.lines = new Array(Math.ceil(this.quizzes.length / this.itemsPerLine)).fill(0).map((x,i) => i);
-      }
-    )
+    this.quizService.getAll().subscribe((quizzes) => {
+      this.quizzes = quizzes;
+    });
   }
 }
