@@ -1,0 +1,48 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Create Quiz</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- Quiz title -->
+  <ion-item>
+    <ion-input
+      label="Quiz title"
+      placeholder="Enter title"
+      [(ngModel)]="title">
+    </ion-input>
+  </ion-item>
+
+  <ion-list>
+
+    @for(question of questions; track $index) {
+      <ion-item>
+        {{ question }}
+      </ion-item>
+    }
+
+  </ion-list>
+
+  <!-- Add question -->
+  <ion-item>
+    <ion-input
+      placeholder="New question"
+      [(ngModel)]="newQuestion">
+    </ion-input>
+
+    <ion-button (click)="addQuestion()">
+      Add
+    </ion-button>
+  </ion-item>
+
+  <ion-button expand="block" (click)="createQuiz()">
+    Create Quiz
+  </ion-button>
+
+  <ion-button expand="block" fill="clear" (click)="cancel()">
+    Cancel
+  </ion-button>
+
+</ion-content>
