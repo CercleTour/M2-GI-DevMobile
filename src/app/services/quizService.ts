@@ -76,16 +76,14 @@ getAll(): Observable<Quiz[]> {
     return questions.map(q => q.data());
   }
   
-  addQuiz(quiz: Quiz): Observable<Quiz> {
+  async addQuiz(quiz: Quiz): Promise<string> {
     const quizzesCollection = collection(this.firestore, 'quizzes');
 
-    return from(
-      addDoc(quizzesCollection, {
-        title: quiz.title,
-        description: quiz.description,
-        questions: quiz.questions
-      }).then(() => quiz)
-    );
+    return addDoc(quizzesCollection, {
+      title: quiz.title,
+      description: quiz.description,
+      questions: quiz.questions
+    }).then((docRef) => docRef.id);
   }
 
   deleteQuiz(quizId: string): Promise<void> {
