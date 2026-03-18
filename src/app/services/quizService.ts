@@ -37,9 +37,7 @@ export class QuizService {
 
         const result = await Promise.all(
           quizzes.map(async quiz => {
-            const questions = await this.loadQuestions(quiz.questions);
-            console.log("Loaded questions:", questions);
-            
+            const questions = await this.loadQuestions(quiz.questions);       
             return {
               ...quiz,
               questions
