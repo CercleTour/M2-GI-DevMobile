@@ -29,27 +29,27 @@ export class QuizService {
     }
   ];
 
-getAll(): Observable<Quiz[]> {
-  const quizzesCollection = collection(this.firestore, 'quizzes');
+  getAll(): Observable<Quiz[]> {
+    const quizzesCollection = collection(this.firestore, 'quizzes');
 
-  return collectionData(quizzesCollection, { idField: 'id' }).pipe(
-    switchMap(async (quizzes: any[]) => {
+    return collectionData(quizzesCollection, { idField: 'id' }).pipe(
+      switchMap(async (quizzes: any[]) => {
 
-      const result = await Promise.all(
-        quizzes.map(async quiz => {
-          const questions = await this.loadQuestions(quiz.questions);
-          console.log("Loaded questions:", questions);
-          
-          return {
-            ...quiz,
-            questions
-          };
-        })
-      );
+        const result = await Promise.all(
+          quizzes.map(async quiz => {
+            const questions = await this.loadQuestions(quiz.questions);
+            console.log("Loaded questions:", questions);
+            
+            return {
+              ...quiz,
+              questions
+            };
+          })
+        );
 
-      return result;
-    })
-  );
+        return result;
+      })
+    );
 }
 
   getById(quizId: string): Observable<Quiz | undefined> {
@@ -78,12 +78,26 @@ getAll(): Observable<Quiz[]> {
   
   async addQuiz(quiz: Quiz): Promise<string> {
     const quizzesCollection = collection(this.firestore, 'quizzes');
+    const questionsCollection = collection(this.firestore, 'questions');
 
-    return addDoc(quizzesCollection, {
+    // 1. Create all questions first
+    const questionRefs = await Promise.all(
+      quiz.questions.map(q =>
+        addDoc(questionsCollection, {
+          text: q.text,
+          choices: q.choices,
+          correctChoiceId: q.correctChoiceId
+        })
+      )
+    );
+    // 2. Create quiz with references
+    const quizDoc = await addDoc(quizzesCollection, {
       title: quiz.title,
       description: quiz.description,
-      questions: quiz.questions
-    }).then((docRef) => docRef.id);
+      questions: questionRefs
+    });
+    
+    return quizDoc.id;
   }
 
   deleteQuiz(quizId: string): Promise<void> {
