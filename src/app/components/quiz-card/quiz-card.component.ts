@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Quiz } from 'src/app/models/quiz';
 import {
   IonCard,
@@ -20,12 +20,14 @@ import {
     IonCardContent 
   ]
 })
-export class QuizCardComponent  implements OnInit {
+export class QuizCardComponent {
   
   @Input() quiz!: Quiz;
   
-  constructor() { }
-  
-  ngOnInit() {}
-  
+
+  @Output() quizClick = new EventEmitter<Quiz>();
+
+  onClick() {
+    this.quizClick.emit(this.quiz);
+  }
 }
