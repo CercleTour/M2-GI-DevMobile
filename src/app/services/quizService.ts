@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { from, Observable, of } from 'rxjs';
+import { from, Observable, of, switchMap, tap } from 'rxjs';
 import { Quiz } from '../models/quiz';
 import {
   Firestore,
@@ -29,14 +29,43 @@ export class QuizService {
     }
   ];
 
-  getAll(): Observable<Quiz[]> {
-    const quizzesCollection = collection(this.firestore, 'quizzes');
-    return collectionData(quizzesCollection, { idField: 'id' }) as Observable<Quiz[]>;
-  }
+getAll(): Observable<Quiz[]> {
+  const quizzesCollection = collection(this.firestore, 'quizzes');
+
+  return collectionData(quizzesCollection, { idField: 'id' }).pipe(
+    switchMap(async (quizzes: any[]) => {
+
+      const result = await Promise.all(
+        quizzes.map(async quiz => {
+          const questions = await this.loadQuestions(quiz.questions);
+          console.log("Loaded questions:", questions);
+          
+          return {
+            ...quiz,
+            questions
+          };
+        })
+      );
+
+      return result;
+    })
+  );
+}
 
   getById(quizId: string): Observable<Quiz | undefined> {
     const quizRef = doc(this.firestore, `quizzes/${quizId}`);
-    return docData(quizRef, { idField: 'id' }) as Observable<Quiz | undefined>;
+
+    return docData(quizRef, { idField: 'id' }).pipe(
+      switchMap(async (quiz: any) => {
+        if (!quiz) return undefined;
+
+        const questions = await this.loadQuestions(quiz.questions);
+        return {
+          ...quiz,
+          questions
+        };
+      })
+    );
   }
   
   async loadQuestions(questionRefs: any[]) {
@@ -46,6 +75,7 @@ export class QuizService {
 
     return questions.map(q => q.data());
   }
+  
   addQuiz(quiz: Quiz): Observable<Quiz> {
     const quizzesCollection = collection(this.firestore, 'quizzes');
 
