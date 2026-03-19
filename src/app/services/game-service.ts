@@ -26,23 +26,21 @@ export class GameService {
     const roomRef = doc(this.firestore, 'rooms', roomId);
     await deleteDoc(roomRef);
   }
-  private async sendEvent(roomId: string, eventData: any) {
+  private async sendEvent(roomId: string, eventType: string, eventData: any) {
     const roomRef = doc(this.firestore, 'rooms', roomId);
 
     await updateDoc(roomRef, {
       currentEvent: {
+        type: eventType,
         data: eventData,
         eventTimestamp: Date.now()
       }
     });
   }
   private async sendQuestionEvent(roomId: string, question: any, questionIndex: number) {
-    await this.sendEvent(roomId, {
-      type: 'question_send',
-      data: {
-        question,
-        questionIndex
-      }
+    await this.sendEvent(roomId, 'question_send', {
+      question,
+      questionIndex
     });
   }
 
@@ -101,9 +99,8 @@ export class GameService {
       roomId,
       players: room.players
     });
-    await this.sendEvent(roomId, {
-      type: 'player_joined',
-      data: { username: playerName }
+    await this.sendEvent(roomId, 'player_joined', {
+      totalPlayers: room.players.length
     });
     return { success: true };
   }

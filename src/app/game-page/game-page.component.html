@@ -1,11 +1,12 @@
 <ion-content class="ion-padding">
 
   @if(!room$) {
-
-  } 
+    <h2>Chargement de la room...</h2>
+  }
   @else {
     @if(status === 'waiting') {
       <h2>En attente du lancement de la room {{ roomId }}</h2>
+      <p>actuelement {{total_players}} joueurs</p>
     }
     @else if(status === 'question_send') {
       <h2>Question en cours...</h2>

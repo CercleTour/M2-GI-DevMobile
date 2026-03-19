@@ -12,8 +12,10 @@ export class GameRoomPage implements OnInit {
 
   roomId!: string;
   username!: string;
+  lastEventTimestamp: number = 0;
 
   game_status: string = 'waiting';
+  total_players: number = 0;
 
   room$!: Observable<Room | null>;
 
@@ -32,12 +34,37 @@ export class GameRoomPage implements OnInit {
     this.room$.subscribe(room => {
       if (!room) return;
 
-      if (room.status === 'waiting') {
-      } else if (room.status === 'question_send') {
-      } else if (room.status === 'show_answer') {
-      } else if (room.status === 'show_score') {
-      } else if (room.status === 'closed') {
-      } else {}
+      if(room.currentEvent.eventTimestamp === this.lastEventTimestamp) return; // pas de nouvel événement
+      this.lastEventTimestamp = room.currentEvent.eventTimestamp;
+
+      console.log('New event received:', room.currentEvent);
+
+      switch(room.currentEvent.data.type) {
+        case 'waiting':
+          // TODO : afficher un message d'attente
+          break;
+        case 'player_joined':
+          // TODO : afficher un compteur de joueurs en temps réel
+          break;
+        case 'question_send':
+          // TODO : afficher la question
+          break;
+        case 'show_answer':
+          // TODO : faire en sorte que le MJ envoit l'event  
+          // TODO : afficher la bonne réponse et les réponses des joueurs
+          break;
+        case 'show_score':
+          // TODO : faire en sorte que le MJ envoit l'event  
+          // TODO : afficher les scores
+          break;
+        case 'closed':
+          // TODO : faire en sorte que le MJ envoit l'event  
+          // TODO : afficher un message de fin de partie
+          break;
+        default:
+          console.log('Unknown event type:', room.currentEvent.data.type);
+          break;
+      }
     });
   }
 }
