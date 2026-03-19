@@ -1,0 +1,28 @@
+<ion-content class="ion-padding">
+
+  @if(!room$) {
+
+  } 
+  @else {
+    @if(status === 'waiting') {
+      <h2>En attente du lancement de la room {{ roomId }}</h2>
+    }
+    @else if(status === 'question_send') {
+      <h2>Question en cours...</h2>
+    }
+    @else if(status === 'show_answer') {
+      <h2>Affichage des réponses...</h2>
+    }
+    @else if(status === 'show_score') {
+      <h2>Affichage des scores...</h2>
+    }
+    @else if(status === 'closed') {
+      <h2>Statut inconnu</h2>
+    }
+    @else {
+      <h2>Statut inconnu</h2>
+    }
+  }
+  <h2>En attente du lancement de la room {{ roomId }}</h2>
+
+</ion-content>
