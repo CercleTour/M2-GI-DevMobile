@@ -14,7 +14,7 @@ export const routes: Routes = [
   {
     path: 'game-room/:id',
     loadComponent: () =>
-      import('./game-page/game-page.component').then(m => m.GameRoomPage),
+      import('./components/game-page/game-page.component').then(m => m.GameRoomPage),
   },
   {
     path: 'admin-game-room/:id',
