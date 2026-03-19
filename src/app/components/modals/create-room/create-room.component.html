@@ -1,0 +1,28 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Créer une room</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="close()">Fermer</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-list>
+    <ion-item *ngFor="let quiz of quizzes$ | async"
+              [color]="selectedQuizId === quiz.id ? 'primary' : ''"
+              (click)="selectQuiz(quiz.id)">
+      <ion-label>
+        {{ quiz.title }} ({{ quiz.questions.length }} questions)
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+  <p style="color:red" *ngIf="error">{{ error }}</p>
+
+  <ion-button expand="block" (click)="createRoom()" [disabled]="!selectedQuizId">
+    Créer la room
+  </ion-button>
+
+</ion-content>
