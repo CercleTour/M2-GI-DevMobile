@@ -1,9 +1,9 @@
 export interface Question {
     id: string;
     text: string;
-    choices: Array<{
+    choices: {
         id: string;
         text: string;
-    }>;
+    }[];
     correctChoiceId: string;
 }

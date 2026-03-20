@@ -1,0 +1,28 @@
+li {
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: #eee;
+  transition: 0.2s;
+}
+
+li.selected {
+  background-color: #4da3ff; // bleu
+  color: white;
+}
+
+li.correct {
+  background-color: #4caf50; // vert
+  color: white;
+}
+
+li.wrong {
+  background-color: #f44336; // rouge
+  color: white;
+}
+
+.count {
+  float: right;
+  font-weight: bold;
+}

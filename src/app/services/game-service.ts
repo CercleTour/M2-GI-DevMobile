@@ -4,6 +4,8 @@ import { Observable, map } from 'rxjs';
 import { Quiz } from '../models/quiz';
 import { Room } from '../models/room';
 import { deleteDoc } from 'firebase/firestore';
+import { Question } from '../models/question';
+import { QuizService } from './quizService';
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +13,10 @@ import { deleteDoc } from 'firebase/firestore';
 
 export class GameService {
 
-  constructor(private firestore: Firestore) { }
+  constructor(
+    private firestore: Firestore,
+    private quizService: QuizService
+  ) { }
 
   private async getRoom(roomId: string): Promise<Room | null> {
     const roomRef = doc(this.firestore, 'rooms', roomId);
@@ -37,11 +42,16 @@ export class GameService {
       }
     });
   }
-  private async sendQuestionEvent(roomId: string, question: any, questionIndex: number) {
+  private async sendQuestionEvent(roomId: string, question: Question, questionIndex: number) {
     await this.sendEvent(roomId, 'question_send', {
-      question,
+      questionTitle: question.text,
+      questionsChoices: {...question.choices, responseCount: -1},
       questionIndex
-    });
+    }
+  );
+  }
+  private async getQuizWithQuestions(quizId: string): Promise<Quiz | undefined> {
+    return await this.quizService.getById(quizId).toPromise();
   }
 
   watchRoom(roomId: string): Observable<Room | null> {
@@ -50,7 +60,6 @@ export class GameService {
       map(data => data as Room)
     );
   }
-
 
   /**
    * Create a new room for the given quiz, and return the room ID. The room is created with status "waiting".
@@ -99,9 +108,6 @@ export class GameService {
       roomId,
       players: room.players
     });
-    await this.sendEvent(roomId, 'player_joined', {
-      totalPlayers: room.players.length
-    });
     return { success: true };
   }
 
@@ -117,12 +123,10 @@ export class GameService {
       return { success: false, message: 'Room not found' };
     }
 
-    const quizRef = doc(this.firestore, 'quizzes', room.quizId);
-    const quizSnap = await getDoc(quizRef);
-    if (!quizSnap.exists()) {
+    const quiz = await this.getQuizWithQuestions(room.quizId);
+    if (!quiz) {
       return { success: false, message: 'Quiz not found' };
     }
-    const quiz = quizSnap.data() as Quiz;
     const question = quiz.questions[0];
     
     await this.updateRoom({
@@ -139,6 +143,9 @@ export class GameService {
     const room = await this.getRoom(roomId);
     if (!room) return { success: false, message: 'Room not found' };
 
+    const quiz = await this.getQuizWithQuestions(room.quizId);
+    if (!quiz) return { success: false, message: 'Quiz not found' };
+
     const nextIndex = room.currentQuestionIndex + 1;
 
     await this.updateRoom({
@@ -147,12 +154,6 @@ export class GameService {
       status: 'question_send'
     });
 
-    const quizRef = doc(this.firestore, 'quizzes', room.quizId);
-    const quizSnap = await getDoc(quizRef);
-    if (!quizSnap.exists()) {
-      return { success: false, message: 'Quiz not found' };
-    }
-    const quiz = quizSnap.data() as Quiz;
     const question = quiz.questions[nextIndex];
 
     await this.sendQuestionEvent(roomId, question, nextIndex);
@@ -165,13 +166,40 @@ export class GameService {
    * @param roomId 
    * @returns 
    */
-  async getAnswers(roomId: string): Promise<{ success: boolean; message?: string; answers?: { username: string; answer: string}[] }> {
-    const room : Room | null = await this.getRoom(roomId);
+  async getAnswers(roomId: string) {
+    const room = await this.getRoom(roomId);
     if (!room) {
       return { success: false, message: 'Room not found' };
     }
+
+    const quiz = await this.getQuizWithQuestions(room.quizId);
+    if (!quiz) {
+      return { success: false, message: 'Quiz not found' };
+    }
+
     const currentQuestionIndex = room.currentQuestionIndex;
-    return { success: true, answers: room.players.map(p => ({ username: p.username, answer: p.answers[currentQuestionIndex] ?? null })) };
+    const question = quiz.questions[currentQuestionIndex];
+
+    const answers = room.players.map(p => ({
+      username: p.username,
+      answer: p.answers[currentQuestionIndex] ?? null
+    }));
+
+    const counts: Record<string, number> = {};
+
+    question.choices.forEach(choice => { counts[choice.id] = 0; });
+    counts['0'] = 0;
+
+    answers.forEach(a => {
+      counts[a.answer??'0']++;
+    });
+
+    await this.sendEvent(roomId, 'show_answer', {
+      question_count: counts, // Record<string, number> with 0 for unanswered
+      correct_answer: question.correctChoiceId
+    });
+
+    return { success: true, answers };
   }
 
   /**
