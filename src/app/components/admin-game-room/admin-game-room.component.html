@@ -1,3 +1,42 @@
-<p>
-  admin-game-room works!
-</p>
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Admin Room {{ roomId }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  @if(game_status === 'waiting') {
+    <h2>En attente des joueurs...</h2>
+    <ion-button (click)="startGame()">Start 1ère question</ion-button>
+    <ul>
+      @for(player of (room$ | async)?.players; track player.username) {
+        <li>{{ player.username }}</li>
+      }
+    </ul>
+  }
+  @else if(game_status === 'question_send') {
+    <h2>Question {{ question.questionIndex + 1 }} : {{ question.questionTitle }}</h2>
+    <ul>
+      @for(choice of question.questionsChoices; track choice.id) {
+        <li>{{ choice.text }}</li>
+      }
+    </ul>
+    <ion-button (click)="showResults()">Afficher résultats</ion-button>
+  }
+  @else if(game_status === 'show_answer') {
+    <h2>Résultats de la question {{ question.questionIndex + 1 }}</h2>
+    <ul>
+      @for(choice of question.questionsChoices; track choice.id) {
+        <li [ngClass]="{'correct': choice.id === correctAnswerId}">
+          {{ choice.text }} ({{ counts[choice.id] || 0 }} votes)
+        </li>
+      }
+    </ul>
+    <ion-button (click)="nextQuestion()">Question suivante</ion-button>
+  }
+  @else {
+    <h2>Statut inconnu</h2>
+  }
+
+</ion-content>
