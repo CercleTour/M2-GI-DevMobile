@@ -3,10 +3,18 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Room } from '../../models/room';
 import { GameService } from '../../services/game-service';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonFab, IonFabButton, IonIcon, ModalController } from '@ionic/angular/standalone';
+import { AsyncPipe, NgIf, NgFor, NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-game-room',
-  templateUrl: './game-room.page.html',
+  templateUrl: './game-page.component.html',
+  styleUrls: ['./game-page.component.scss'],
+  imports: [
+    IonContent,
+    AsyncPipe,
+    NgClass
+  ]
 })
 export class GameRoomPage implements OnInit {
 
@@ -19,7 +27,11 @@ export class GameRoomPage implements OnInit {
     questionTitle: string;
     questionsChoices: {text: string, id: string, responseCount: number}[];
     questionIndex: number;
-  } | null = null;
+  } = {
+    questionTitle:'', 
+    questionsChoices: [], 
+    questionIndex: -1
+  };
   selectedAnswerId: string | null = null;
   correctAnswerId: string | null = null;
 

@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Quiz } from 'src/app/models/quiz';
 import { QuizService } from 'src/app/services/quizService';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonFab, IonFabButton, IonIcon, ModalController } from '@ionic/angular/standalone';
+import { IonButton, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonFab, IonFabButton, IonIcon, ModalController } from '@ionic/angular/standalone';
 import { QuizCardComponent } from '../quiz-card/quiz-card.component';
 import { CreateQuizModal } from '../modals/create-quiz.modal';
 import { add } from 'ionicons/icons';
@@ -23,7 +23,8 @@ import { JoinRoomComponent } from '../modals/join-room/join-room.component';
     QuizCardComponent,
     IonFab,
     IonFabButton,
-    IonIcon
+    IonIcon,
+    IonButton
 ],
 })
 export class HomePageComponent  implements OnInit {
@@ -57,7 +58,7 @@ export class HomePageComponent  implements OnInit {
 
   }
 
-  async openJoinModal() {
+  async openJoinRoomModal() {
     const modal = await this.modalCtrl.create({
       component: JoinRoomComponent
     });

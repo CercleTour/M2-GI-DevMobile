@@ -1,10 +1,23 @@
 import { Component } from '@angular/core';
-import { ModalController, NavController } from '@ionic/angular';
+import { ModalController, IonHeader, IonToolbar, IonContent, NavController, IonButton, IonInput, IonLabel, IonItem, IonButtons, IonTitle} from '@ionic/angular/standalone';
 import { GameService } from 'src/app/services/game-service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-join-room',
   templateUrl: './join-room.component.html',
+  imports: [
+    IonHeader,
+    IonLabel,
+    IonInput,
+    IonItem,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonTitle,
+    IonToolbar,
+    FormsModule
+  ]
 })
 export class JoinRoomComponent {
 

@@ -1,21 +1,21 @@
-<ion-content class="ion-padding">
+<ion-content [fullscreen]="true" class="ion-padding">
 
   @if(!room$) {
     <h2>Chargement de la room...</h2>
   }
   @else {
-    @if(status === 'waiting') {
+    @if(game_status === 'waiting') {
       <h2>En attente du lancement de la room {{ roomId }}</h2>
-      <p>actuelement {{(room$ | async)?.players.length}} joueurs prêts</p>
+      <p>actuelement {{(room$ | async)?.players?.length??"???"}} joueurs prêts</p>
     }
-    @else if(status === 'question_send' || status === 'show_answer') {
+    @else if(game_status === 'question_send' || game_status === 'show_answer') {
       <h2>
-        Question {{ question?.questionIndex + 1 }} :
-        {{ question?.questionTitle }}
+        Question {{ question.questionIndex + 1 }} :
+        {{ question.questionTitle }}
       </h2>
 
       <ul>
-        @for(let choice of question?.questionsChoices || []) {
+        @for(choice of question.questionsChoices; track choice.id) {
           <li
             (click)="selectAnswer(choice.id)"
             [ngClass]="{
@@ -35,10 +35,10 @@
         }
       </ul>
     }
-    @else if(status === 'show_score') {
+    @else if(game_status === 'show_score') {
       <h2>Affichage des scores...</h2>
     }
-    @else if(status === 'closed') {
+    @else if(game_status === 'closed') {
       <h2>Statut inconnu</h2>
     }
     @else {
