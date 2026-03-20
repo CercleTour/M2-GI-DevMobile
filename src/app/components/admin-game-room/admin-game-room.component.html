@@ -8,6 +8,7 @@
 
   @if(game_status === 'waiting') {
     <h2>En attente des joueurs...</h2>
+    <h3>RoomId : {{ roomId }}</h3>
     <ion-button (click)="startGame()">Start 1ère question</ion-button>
     <ul>
       @for(player of (room$ | async)?.players; track player.username) {
