@@ -16,15 +16,11 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register-page',
-  standalone: true,
   templateUrl: './register-page.page.html',
   styleUrls: ['./register-page.page.scss'],
   imports: [
     IonButton,
-    IonHeader,
     IonContent,
-    IonToolbar,
-    IonTitle,
     IonInput,
     CommonModule,
     ReactiveFormsModule,
