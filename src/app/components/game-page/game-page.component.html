@@ -1,0 +1,50 @@
+<ion-content [fullscreen]="true" class="ion-padding">
+
+  @if(!room$) {
+    <h2>Chargement de la room...</h2>
+  }
+  @else {
+    @if(game_status === 'waiting') {
+      <h2>En attente du lancement de la room {{ roomId }}</h2>
+      <p>actuelement {{(room$ | async)?.players?.length??"???"}} joueurs prêts</p>
+    }
+    @else if(game_status === 'question_send' || game_status === 'show_answer') {
+      <h2>
+        Question {{ question.questionIndex + 1 }} :
+        {{ question.questionTitle }}
+      </h2>
+
+      <ul>
+        @for(choice of question.questionsChoices; track choice.id) {
+          <li
+            (click)="selectAnswer(choice.id)"
+            [ngClass]="{
+              'selected': selectedAnswerId === choice.id && game_status === 'question_send',
+              'correct': game_status === 'show_answer' && choice.id === correctAnswerId,
+              'wrong': game_status === 'show_answer' && choice.id === selectedAnswerId && selectedAnswerId !== correctAnswerId
+            }"
+          >
+            {{ choice.text }}
+
+            @if(game_status === 'show_answer') {
+              <span class="count">
+                ({{ choice.responseCount || 0 }} votes)
+              </span>
+            }
+          </li>
+        }
+      </ul>
+    }
+    @else if(game_status === 'show_score') {
+      <h2>Affichage des scores...</h2>
+    }
+    @else if(game_status === 'closed') {
+      <h2>Statut inconnu</h2>
+    }
+    @else {
+      <h2>Statut inconnu</h2>
+    }
+  }
+  <h2>En attente du lancement de la room {{ roomId }}</h2>
+
+</ion-content>
