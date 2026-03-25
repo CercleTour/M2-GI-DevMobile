@@ -1,20 +1,84 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
+
+import {
+  IonButton,
+  IonHeader,
+  IonContent,
+  IonToolbar,
+  IonTitle,
+  IonInput,
+} from '@ionic/angular/standalone';
+import { AuthService } from 'src/app/services/auth-service';
+
 
 @Component({
   selector: 'app-register-page',
+  standalone: true,
   templateUrl: './register-page.page.html',
   styleUrls: ['./register-page.page.scss'],
-  standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
+  imports: [
+    IonButton,
+    IonHeader,
+    IonContent,
+    IonToolbar,
+    IonTitle,
+    IonInput,
+    CommonModule,
+    ReactiveFormsModule,
+  ],
 })
-export class RegisterPagePage implements OnInit {
+export class RegisterPagePage {
+  private readonly fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
 
-  constructor() { }
+  invalidEmailText = 'Not a valid email';
+  invalidAliasText = 'Alias is required';
+  invalidPasswordText = 'Password should have at least 6 characters';
+  invalidPasswordConfirmText = 'Does not match password';
 
-  ngOnInit() {
+  registerForm = this.fb.group({
+    email: ['', [Validators.email, Validators.required]],
+    alias: ['', [Validators.required]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+    passwordConfirm: ['', passwordConfirmMatchPasswordValidator()],
+  });
+
+  async onSubmit() {
+    const { email, password, alias } = this.registerForm.value;
+
+    if (!email || !password || !alias) return;
+
+    try {
+      await this.authService.register(email, password, alias);
+      console.log('Registration successful');
+    } catch (err) {
+      console.error('Register error', err);
+    }
   }
 
+  
+}
+
+export function passwordConfirmMatchPasswordValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const controls = control.parent?.controls as {
+      [key: string]: AbstractControl | null;
+    };
+
+    const password = controls ? controls['password']?.value : null;
+    const passwordConfirm = control?.value;
+
+    return passwordConfirm === password
+      ? null
+      : { passwordConfirmMissmatch: true };
+  };
 }
