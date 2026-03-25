@@ -9,15 +9,9 @@ import {
   Validators,
 } from '@angular/forms';
 
-import {
-  IonButton,
-  IonHeader,
-  IonContent,
-  IonToolbar,
-  IonTitle,
-  IonInput,
-} from '@ionic/angular/standalone';
+import { IonButton, IonHeader, IonContent, IonToolbar, IonTitle, IonInput, IonItem } from '@ionic/angular/standalone';
 import { AuthService } from 'src/app/services/auth-service';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -34,12 +28,15 @@ import { AuthService } from 'src/app/services/auth-service';
     IonInput,
     CommonModule,
     ReactiveFormsModule,
-  ],
+    IonItem
+],
 })
-export class RegisterPagePage {
-  private readonly fb = inject(FormBuilder);
-  private readonly authService = inject(AuthService);
 
+export class RegisterPagePage {
+  private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  
   invalidEmailText = 'Not a valid email';
   invalidAliasText = 'Alias is required';
   invalidPasswordText = 'Password should have at least 6 characters';
@@ -65,6 +62,9 @@ export class RegisterPagePage {
     }
   }
 
+  goToLogin() {
+    this.router.navigateByUrl('/login-page');
+  }
   
 }
 

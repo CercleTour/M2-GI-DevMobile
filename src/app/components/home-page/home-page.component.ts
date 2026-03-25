@@ -1,14 +1,16 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Quiz } from 'src/app/models/quiz';
 import { QuizService } from 'src/app/services/quizService';
-import { IonButton, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonFab, IonFabButton, IonIcon, ModalController } from '@ionic/angular/standalone';
+import { IonButton, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonFab, IonFabButton, IonIcon, ModalController, IonButtons } from '@ionic/angular/standalone';
 import { QuizCardComponent } from '../quiz-card/quiz-card.component';
 import { CreateQuizModal } from '../modals/create-quiz.modal';
-import { add } from 'ionicons/icons';
+import { add, logOutOutline } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import { JoinRoomComponent } from '../modals/join-room/join-room.component';
 import { CreateRoomComponent } from '../modals/create-room/create-room.component';
 import { QuizDetailModal } from '../modals/quiz-detail.modal';
+import { AuthService } from 'src/app/services/auth-service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home-page',
@@ -26,19 +28,24 @@ import { QuizDetailModal } from '../modals/quiz-detail.modal';
     IonFab,
     IonFabButton,
     IonIcon,
-    IonButton
+    IonButton,
+    IonButtons
 ],
 })
 
 
 export class HomePageComponent  implements OnInit {
-  
+  private authService = inject(AuthService);
+  private router = inject(Router);
   private modalCtrl = inject(ModalController);
   quizzes: Quiz[] = [];
   private itemsPerLine = 4;
   private lines: Array<number> = [];
   constructor(private quizService: QuizService) {
-    addIcons({ add });
+    addIcons
+    ({  add,
+        logOutOutline,
+     });
   }
   
   ngOnInit() {
@@ -131,5 +138,10 @@ export class HomePageComponent  implements OnInit {
     });
 
     await modal.present();
+  }
+
+  async logout() {
+    await this.authService.logout();
+    this.router.navigateByUrl('/login-page');
   }
 }

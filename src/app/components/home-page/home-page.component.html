@@ -1,44 +1,49 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
+    <ion-title>Home</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
-  
-  <div id="container">
-    <ion-grid>
-      <ion-row>
-        @for(quiz of quizzes; track quiz.id) 
-        {
-          <ion-col size="auto">
-            <app-quiz-card 
-              [quiz]="quiz"
-              (quizClick)="openQuiz($event)">
-            </app-quiz-card>
-          </ion-col>
-        }
-      </ion-row>
-    </ion-grid>
-  </div>
+  <ion-content [fullscreen]="true">
+    <ion-header collapse="condense">
+      <ion-toolbar>
+        <ion-title size="large">Blank</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    
+    <div id="container">
+      <ion-grid>
+        <ion-row>
+          @for(quiz of quizzes; track quiz.id) 
+          {
+            <ion-col size="auto">
+              <app-quiz-card 
+                [quiz]="quiz"
+                (quizClick)="openQuiz($event)">
+              </app-quiz-card>
+            </ion-col>
+          }
+        </ion-row>
+      </ion-grid>
+    </div>
 
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button (click)="createQuiz()">
-      <ion-icon name="add"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+      <ion-fab-button (click)="createQuiz()">
+        <ion-icon name="add"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
 
-  <ion-button expand="block" (click)="openJoinRoomModal()">
-    Rejoindre une room
-  </ion-button>
-  <ion-button expand="block" (click)="openCreateRoomModal()">
-    Créer une room
-  </ion-button>
-</ion-content>
+    <ion-button expand="block" (click)="openJoinRoomModal()">
+      Rejoindre une room
+    </ion-button>
+    <ion-button expand="block" (click)="openCreateRoomModal()">
+      Créer une room
+    </ion-button>
+  </ion-content>

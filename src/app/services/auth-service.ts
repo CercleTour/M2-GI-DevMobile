@@ -9,6 +9,7 @@ import {
   sendPasswordResetEmail,
   sendEmailVerification,
 } from '@angular/fire/auth';
+
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { ToastController } from '@ionic/angular/standalone';
@@ -64,7 +65,7 @@ export class AuthService {
 
   async logout(): Promise<void> {
     await signOut(this.auth);
-    this.router.navigateByUrl('/');
+    this.router.navigateByUrl('/login-page');
   }
 
   sendResetPasswordLink(email: string): Promise<void> {

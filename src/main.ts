@@ -10,6 +10,7 @@ import { initializeApp } from "firebase/app";
 import { provideFirebaseApp } from "@angular/fire/app";
 import { getFirestore, provideFirestore } from "@angular/fire/firestore";
 import { environment } from "./environments/environment";
+import { provideAuth, getAuth } from '@angular/fire/auth';
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -18,5 +19,6 @@ bootstrapApplication(AppComponent, {
     provideZoneChangeDetection(),{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular(),
     provideRouter(routes, withPreloading(PreloadAllModules)),
+    provideAuth(() => getAuth()),
   ],
 });
