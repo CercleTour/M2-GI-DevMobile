@@ -3,12 +3,12 @@ import { Quiz } from 'src/app/models/quiz';
 import { QuizService } from 'src/app/services/quizService';
 import { IonButton, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonFab, IonFabButton, IonIcon, ModalController, IonButtons } from '@ionic/angular/standalone';
 import { QuizCardComponent } from '../quiz-card/quiz-card.component';
-import { CreateQuizModal } from '../modals/create-quiz.modal';
+import { CreateQuizModal } from '../modals/create-quiz/create-quiz.modal';
 import { add, logOutOutline } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 import { JoinRoomComponent } from '../modals/join-room/join-room.component';
 import { CreateRoomComponent } from '../modals/create-room/create-room.component';
-import { QuizDetailModal } from '../modals/quiz-detail.modal';
+import { QuizDetailModal } from '../modals/detail-quiz/quiz-detail.modal';
 import { AuthService } from 'src/app/services/auth-service';
 import { Router } from '@angular/router';
 
