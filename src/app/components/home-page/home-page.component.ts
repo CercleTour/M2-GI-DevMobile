@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Quiz } from 'src/app/models/quiz';
-import { QuizService } from 'src/app/services/quizService';
+import { QuizService } from 'src/app/services/quiz-service';
 import { IonButton, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonFab, IonFabButton, IonIcon, ModalController, IonButtons } from '@ionic/angular/standalone';
 import { QuizCardComponent } from '../quiz-card/quiz-card.component';
 import { CreateQuizModal } from '../modals/create-quiz/create-quiz.modal';
@@ -55,7 +55,6 @@ export class HomePageComponent  implements OnInit {
   }
 
   async createQuiz() {
-
     const modal = await this.modalCtrl.create({
       component: CreateQuizModal
     });
@@ -64,8 +63,17 @@ export class HomePageComponent  implements OnInit {
 
     const result = await modal.onDidDismiss();
 
-    if(result.data) {
-      console.log("Created quiz:", result.data);
+    if (result.data) {
+      try {
+        const quiz: Quiz = result.data;
+
+        await this.quizService.saveQuiz(quiz);
+
+        console.log('Quiz saved to Firebase:', quiz.id);
+
+      } catch (error) {
+        console.error('Error saving quiz:', error);
+      }
     }
   }
 

@@ -5,7 +5,7 @@ import { Quiz } from '../models/quiz';
 import { Room } from '../models/room';
 import { deleteDoc } from 'firebase/firestore';
 import { Question } from '../models/question';
-import { QuizService } from './quizService';
+import { QuizService } from './quiz-service';
 import { GameQuestion } from '../models/gameQuestion';
 
 @Injectable({
