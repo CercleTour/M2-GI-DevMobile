@@ -10,12 +10,12 @@
     }
     @else if(game_status === 'question_send' || game_status === 'show_answer') {
       <h2>
-        Question {{ question.questionIndex + 1 }} :
-        {{ question.questionTitle }}
+        Question {{ question.index + 1 }} :
+        {{ question.text }}
       </h2>
 
       <ul>
-        @for(choice of question.questionsChoices; track choice.id) {
+        @for(choice of question.choices; track choice.id) {
           <li
             (click)="selectAnswer(choice.id)"
             [ngClass]="{
