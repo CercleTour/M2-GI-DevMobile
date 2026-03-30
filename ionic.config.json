@@ -1,5 +1,5 @@
 {
   "name": "kahoot",
   "integrations": {},
-  "type": "angular-standalone"
+  "type": "angular"
 }

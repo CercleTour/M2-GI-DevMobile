@@ -1,20 +1,21 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Firestore, doc, collection, setDoc, updateDoc, getDoc, docData, collectionData } from '@angular/fire/firestore';
-import { Observable, map } from 'rxjs';
+import { Observable, map, tap } from 'rxjs';
 import { Quiz } from '../models/quiz';
 import { Room } from '../models/room';
 import { deleteDoc } from 'firebase/firestore';
 import { Question } from '../models/question';
 import { QuizService } from './quizService';
+import { GameQuestion } from '../models/gameQuestion';
 
 @Injectable({
   providedIn: 'root',
 })
 
 export class GameService {
+  private firestore = inject(Firestore);
 
   constructor(
-    private firestore: Firestore,
     private quizService: QuizService
   ) { }
 
@@ -31,34 +32,13 @@ export class GameService {
     const roomRef = doc(this.firestore, 'rooms', roomId);
     await deleteDoc(roomRef);
   }
-  private async sendEvent(roomId: string, eventType: string, eventData: any) {
-    const roomRef = doc(this.firestore, 'rooms', roomId);
-
-    await updateDoc(roomRef, {
-      currentEvent: {
-        type: eventType,
-        data: eventData,
-        eventTimestamp: Date.now()
-      }
-    });
-  }
-  private async sendQuestionEvent(roomId: string, question: Question, questionIndex: number) {
-    await this.sendEvent(roomId, 'question_send', {
-      questionTitle: question.text,
-      questionsChoices: {...question.choices, responseCount: -1},
-      questionIndex
-    }
-  );
-  }
   private async getQuizWithQuestions(quizId: string): Promise<Quiz | undefined> {
     return await this.quizService.getById(quizId).toPromise();
   }
 
   watchRoom(roomId: string): Observable<Room | null> {
     const roomRef = doc(this.firestore, 'rooms', roomId);
-    return docData(roomRef).pipe(
-      map(data => data as Room)
-    );
+    return docData(roomRef) as Observable<Room | null>;
   }
 
   /**
@@ -123,18 +103,11 @@ export class GameService {
       return { success: false, message: 'Room not found' };
     }
 
-    const quiz = await this.getQuizWithQuestions(room.quizId);
-    if (!quiz) {
-      return { success: false, message: 'Quiz not found' };
-    }
-    const question = quiz.questions[0];
-    
     await this.updateRoom({
       roomId: room.roomId,
-      status: 'question_send'
+      status: 'question_send',
+      currentQuestionIndex: 0
     });
-
-    await this.sendQuestionEvent(roomId, question, 0);
 
     return { success: true};
   }
@@ -142,9 +115,6 @@ export class GameService {
   async nextQuestion(roomId: string): Promise<{ success: boolean; message?: string }> {
     const room = await this.getRoom(roomId);
     if (!room) return { success: false, message: 'Room not found' };
-
-    const quiz = await this.getQuizWithQuestions(room.quizId);
-    if (!quiz) return { success: false, message: 'Quiz not found' };
 
     const nextIndex = room.currentQuestionIndex + 1;
 
@@ -154,10 +124,46 @@ export class GameService {
       status: 'question_send'
     });
 
-    const question = quiz.questions[nextIndex];
-
-    await this.sendQuestionEvent(roomId, question, nextIndex);
     return { success: true };
+  }
+
+  public getNextQuestion(questionIndex: number, quizId: string): Promise<GameQuestion> {
+    return new Promise((resolve, reject) => {
+      this.quizService.getById(quizId).subscribe({
+        next: quiz => {
+          if (!quiz) return reject(new Error('Quiz not found'));
+
+          const question = quiz.questions[questionIndex];
+          if (!question) return reject(new Error('Question not found'));
+
+          resolve({
+            index: questionIndex,
+            text: question.text,
+            choices: question.choices.map(c => ({
+              id: c.id,
+              text: c.text,
+              responseCount: -1
+            }))
+          } as GameQuestion);
+        },
+        error: err => reject(err)
+      });
+    });
+  }
+  public getCorrectAnswerId(questionIndex: number, quizId: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.quizService.getById(quizId).subscribe({
+        next: quiz => {
+          if (!quiz) return reject(new Error('Quiz not found'));
+
+          const question = quiz.questions[questionIndex];
+          if (!question) return reject(new Error('Question not found'));
+
+          resolve(question.correctChoiceId);
+        },
+        error: err => reject(err)
+      });
+    });
   }
 
   /**
@@ -194,9 +200,9 @@ export class GameService {
       counts[a.answer??'0']++;
     });
 
-    await this.sendEvent(roomId, 'show_answer', {
-      question_count: counts, // Record<string, number> with 0 for unanswered
-      correct_answer: question.correctChoiceId
+    await this.updateRoom({
+      roomId,
+      status: 'show_answer'
     });
 
     return { success: true, answers };

@@ -5,6 +5,7 @@ import { Room } from '../../models/room';
 import { GameService } from '../../services/game-service';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonFab, IonFabButton, IonIcon, ModalController } from '@ionic/angular/standalone';
 import { AsyncPipe, NgClass } from '@angular/common';
+import { GameQuestion } from 'src/app/models/gameQuestion';
 
 @Component({
   selector: 'app-game-room',
@@ -23,14 +24,10 @@ export class GameRoomPage implements OnInit {
   lastEventTimestamp: number = 0;
 
   game_status: string = 'waiting';
-  question: {
-    questionTitle: string;
-    questionsChoices: {text: string, id: string, responseCount: number}[];
-    questionIndex: number;
-  } = {
-    questionTitle:'', 
-    questionsChoices: [], 
-    questionIndex: -1
+  question: GameQuestion = {
+    index: -1,
+    text: '',
+    choices: []
   };
   selectedAnswerId: string | null = null;
   correctAnswerId: string | null = null;
@@ -50,6 +47,7 @@ export class GameRoomPage implements OnInit {
 
     // écoute des changements
     this.room$.subscribe(room => {
+      console.dir(room, {depth: null});
       if (!room) return;
 
       if(room.currentEvent.eventTimestamp === this.lastEventTimestamp) return; // pas de nouvel événement
@@ -61,23 +59,23 @@ export class GameRoomPage implements OnInit {
 
       switch(room.currentEvent.data.type) {
         case 'waiting':
-          // TODO : afficher un message d'attente
           break;
         case 'question_send':
-          this.question = room.currentEvent.data;
+          this.gameService.getNextQuestion(room.currentQuestionIndex, room.quizId)
+            .then(question => {
+              this.question = question;
+            })
+            .catch(error => {
+              console.error('Error fetching next question:', error);
+            });
           break;
         case 'show_answer':
-          /*
-          Code coté GameService :
-          await this.sendEvent(roomId, 'show_answer', {
-            question_count: counts, // Record<string, number> with 0 for unanswered
-            correct_answer: question.correctChoiceId
-          });
-          */
-          this.correctAnswerId = room.currentEvent.data.correct_answer;
-          
-          this.question?.questionsChoices.forEach(choice => {
-            choice.responseCount = room.currentEvent.data.question_count[choice.id] ?? 0;
+         this.gameService.getCorrectAnswerId(room.currentQuestionIndex, room.quizId)
+          .then(correctAnswerId => {
+            this.correctAnswerId = correctAnswerId;
+          })
+          .catch(error => {
+            console.error('Error fetching correct answer ID:', error);
           });
           break;
         case 'show_score':
@@ -103,7 +101,7 @@ export class GameRoomPage implements OnInit {
       this.roomId,
       this.username,
       choiceId,
-      this.question!.questionIndex
+      this.question!.index
     );
   }
 }
