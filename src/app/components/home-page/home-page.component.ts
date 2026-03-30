@@ -1,11 +1,18 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Quiz } from 'src/app/models/quiz';
 import { QuizService } from 'src/app/services/quiz-service';
-import { IonButton, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonFab, IonFabButton, IonIcon, ModalController, IonButtons } from '@ionic/angular/standalone';
+import { IonButton, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonFab, IonFabButton, IonIcon, ModalController, IonButtons, IonFooter } from '@ionic/angular/standalone';
 import { QuizCardComponent } from '../quiz-card/quiz-card.component';
 import { CreateQuizModal } from '../modals/create-quiz/create-quiz.modal';
-import { add, logOutOutline } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
+import {
+  add,
+  addOutline,
+  logOutOutline,
+  playOutline,
+  enterOutline
+} from 'ionicons/icons';
+
 import { JoinRoomComponent } from '../modals/join-room/join-room.component';
 import { CreateRoomComponent } from '../modals/create-room/create-room.component';
 import { QuizDetailModal } from '../modals/detail-quiz/quiz-detail.modal';
@@ -29,7 +36,8 @@ import { Router } from '@angular/router';
     IonFabButton,
     IonIcon,
     IonButton,
-    IonButtons
+    IonButtons,
+    IonFooter
 ],
 })
 
@@ -44,7 +52,10 @@ export class HomePageComponent  implements OnInit {
   constructor(private quizService: QuizService) {
     addIcons
     ({  add,
+        addOutline,
         logOutOutline,
+        playOutline,
+        enterOutline
      });
   }
   
