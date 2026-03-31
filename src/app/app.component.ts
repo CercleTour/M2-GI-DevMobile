@@ -19,9 +19,12 @@ export class AppComponent {
         try {
           const url = new URL(event.url);
           if (url.hostname.toLowerCase() === 'pepp3rrr.github.io') {
-            const appPath = "/" + url.pathname.split("/").slice(1).join("/");
+            const appPath = url.pathname;
+
             if (appPath) {
-              this.router.navigateByUrl(appPath);
+              const segments = appPath.split("/").filter(Boolean);
+              const newPath = "/" + segments.slice(1).join("/");
+              this.router.navigateByUrl(newPath);
             }
           }
         } catch (e) {
