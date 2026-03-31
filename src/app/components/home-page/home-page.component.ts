@@ -46,9 +46,7 @@ export class HomePageComponent  implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private modalCtrl = inject(ModalController);
-  quizzes: Quiz[] = [];
-  private itemsPerLine = 4;
-  private lines: Array<number> = [];
+  quizzes: Quiz[] | null = null;
   constructor(private quizService: QuizService) {
     addIcons
     ({  add,
@@ -60,6 +58,8 @@ export class HomePageComponent  implements OnInit {
   }
   
   ngOnInit() {
+    this.quizzes = null;
+
     this.quizService.getAll().subscribe((quizzes) => {
       this.quizzes = quizzes;
     });
