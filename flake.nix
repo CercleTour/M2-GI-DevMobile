@@ -12,6 +12,7 @@
       config.allowUnfree = true;
       config.android_sdk.accept_license = true;
     };
+    buildToolsVersion = "35.0.0";
 
     # Android
     androidComposition = pkgs.androidenv.composeAndroidPackages {
@@ -19,7 +20,7 @@
         "36"
       ];
       buildToolsVersions = [
-        "35.0.0"
+        buildToolsVersion
       ];
       systemImageTypes = ["default"];
       abiVersions = [
@@ -55,7 +56,7 @@
       NDK_HOME = "${ndk_root}";
 
       shellHook = ''
-        export PATH="${ndk_path}:${androidsdk}/bin:$PATH";
+        export PATH="${ndk_path}:${androidsdk}/bin:${sdk_root}/build-tools/${buildToolsVersion}:$PATH";
 
         [[ -f .env ]] && . .env
       '';
