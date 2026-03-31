@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">kahoot</string>
+    <string name="title_activity_main">kahoot</string>
+    <string name="package_name">com.thiscourseisascam.kahoot</string>
+    <string name="custom_url_scheme">com.thiscourseisascam.kahoot</string>
+</resources>
