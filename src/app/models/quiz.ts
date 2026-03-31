@@ -5,4 +5,6 @@ export interface Quiz {
     title: string;
     questions: Question[];
     description: string;
+    authorId: string;
+    isPublic: boolean; 
 }
