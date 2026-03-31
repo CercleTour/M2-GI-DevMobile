@@ -18,7 +18,7 @@ export class AppComponent {
       this.zone.run(() => {
         try {
           const url = new URL(event.url);
-          if (url.hostname.toLowerCase() === 'cercletour.github.io') {
+          if (url.hostname.toLowerCase() === 'pepp3rrr.github.io') {
             const appPath = url.pathname;
             if (appPath) {
               this.router.navigateByUrl(appPath);

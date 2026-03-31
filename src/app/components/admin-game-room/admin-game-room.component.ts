@@ -31,10 +31,10 @@ import {
     NgClass,
     QRCodeComponent,
     IonIcon
-]
+  ]
 })
 export class AdminGameRoomComponent implements OnInit {
-  
+
   roomId!: string;
   room$!: Observable<Room | null>;
   players$!: Observable<Player[]>;
@@ -43,9 +43,9 @@ export class AdminGameRoomComponent implements OnInit {
   correctAnswerId: string | null = null;
 
   isLastQuestion: boolean = false;
-  
+
   game_status: string = 'waiting';
-  
+
   question: GameQuestion = {
     index: -1,
     text: '',
@@ -58,29 +58,29 @@ export class AdminGameRoomComponent implements OnInit {
     private route: ActivatedRoute,
     private gameService: GameService
   ) {
-      addIcons({
-        triangle,
-        square,
-        ellipse,
-        diamond
-      });
+    addIcons({
+      triangle,
+      square,
+      ellipse,
+      diamond
+    });
   }
-  
+
   ngOnInit() {
     this.roomId = this.route.snapshot.paramMap.get('id')!;
     // this.qrCodeUrl = `${window.location.origin}/qrcode/${this.roomId}`;
-    this.qrCodeUrl = `https://CercleTour.github.io/qrcode/${this.roomId}`;
+    this.qrCodeUrl = `https://pepp3rrr.github.io/qrcode/${this.roomId}`;
 
     this.room$ = this.gameService.watchRoom(this.roomId);
     this.players$ = this.gameService.watchPlayers(this.roomId);
 
     this.room$.subscribe(room => {
       if (!room) return;
-      
+
       if (room.status === this.game_status) return;
       this.game_status = room.status;
-      
-      switch(room.status) {
+
+      switch (room.status) {
         case 'question_send':
           this.gameService.getNextQuestion(room.currentQuestionIndex, room.quizId)
             .then(question => {
@@ -91,13 +91,13 @@ export class AdminGameRoomComponent implements OnInit {
             });
           break;
         case 'show_answer':
-         this.gameService.getCorrectAnswerId(room.currentQuestionIndex, room.quizId)
-          .then(correctAnswerId => {
-            this.correctAnswerId = correctAnswerId;
-          })
-          .catch(error => {
-            console.error('Error fetching correct answer ID:', error);
-          });
+          this.gameService.getCorrectAnswerId(room.currentQuestionIndex, room.quizId)
+            .then(correctAnswerId => {
+              this.correctAnswerId = correctAnswerId;
+            })
+            .catch(error => {
+              console.error('Error fetching correct answer ID:', error);
+            });
           this.gameService.getResponseCounts(this.roomId).then(gameQuestion => {
             if (gameQuestion) {
               this.question = gameQuestion;
@@ -119,7 +119,7 @@ export class AdminGameRoomComponent implements OnInit {
       }
     });
   }
-  
+
   async startGame() {
     const result = await this.gameService.startGame(this.roomId);
     if (result.success && result.isLastQuestion) {
@@ -132,17 +132,17 @@ export class AdminGameRoomComponent implements OnInit {
       this.isLastQuestion = true;
     }
   }
-  
+
   async getAnswers() {
     const result = await this.gameService.getAnswers(this.roomId);
-    if(result.message) {
+    if (result.message) {
       console.log(result.message);
     }
   }
-  
+
   async gameResults() {
     const result = await this.gameService.showResults(this.roomId);
-    if(result.message) {
+    if (result.message) {
       console.log(result.message);
     }
   }
