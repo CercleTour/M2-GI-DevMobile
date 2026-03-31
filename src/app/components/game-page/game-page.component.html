@@ -1,67 +1,132 @@
-<ion-content [fullscreen]="true" class="ion-padding">
+<ion-header>
+  <ion-toolbar class="home-toolbar">
+    <ion-title>Kahoot! | {{ roomId }}</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button color="danger" (click)="confirmExit()">
+        Quit
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="home-content ion-padding">
 
   @if(!room$) {
-    <h2>Chargement de la room...</h2>
-  }
-  @else {
+
+    <div class="waiting-room">
+      <h2>Loading room...</h2>
+    </div>
+
+  } @else {
+
+    <!-- WAITING -->
     @if(game_status === 'waiting') {
-      <div class="waiting-room">
-        <h2>En attente du lancement de la room {{ roomId }}</h2>
-        <p>{{ (players$ | async)?.length || "0" }} joueurs prêts à jouer</p>
+
+      <div class="waiting-room fade-in">
+        <h2>Waiting for game to start</h2>
+        <p>{{ (players$ | async)?.length || "0" }} players ready</p>
+      </div>
+
+    }
+
+    <!-- QUESTION -->
+    @else if(game_status === 'question_send' || game_status === 'show_answer') {
+
+      <div class="question-container fade-in">
+
+        <h2 class="question-title">
+          Question {{ question.index + 1 }}
+        </h2>
+
+        <p class="question-text">
+          {{ question.text }}
+        </p>
+
+        <!-- GRID -->
+        <div class="choices-grid">
+          @for(choice of question.choices; track choice.id; let i = $index) {
+
+            <div
+              class="choice-card color-{{ i }}"
+              (click)="game_status === 'question_send' && selectAnswer(choice.id)"
+              [ngClass]="{
+                'selected': selectedAnswerId === choice.id && game_status === 'question_send',
+                'correct': game_status === 'show_answer' && choice.id === correctAnswerId
+              }"
+            >
+
+              <ion-icon class="choice-icon" [name]="getIcon(i)"></ion-icon>
+
+              <span class="choice-text">
+                {{ choice.text }}
+              </span>
+
+            </div>
+
+          }
+        </div>
+
+        <!-- ✅ DURING QUESTION -->
+        @if (selectedAnswerId && game_status === 'question_send') {
+          <p class="selection-text">
+            You chose:
+            <strong>{{ getChoiceTextById(selectedAnswerId) }}</strong>
+          </p>
+        }
+
+        <!-- ✅ AFTER RESULTS -->
+        @if (game_status === 'show_answer') {
+
+          <p class="selection-text">
+            You chose:
+            <strong>{{ getChoiceTextById(selectedAnswerId) }}</strong>
+          </p>
+
+          <p class="selection-text">
+            Correct answer was:
+            <strong>{{ getChoiceTextById(correctAnswerId) }}</strong>
+          </p>
+
+        }
+
       </div>
     }
-    @else if(game_status === 'question_send' || game_status === 'show_answer') {
-      <h2 class="question-title">
-        Question {{ question.index + 1 }} :
-        {{ question.text }}
-      </h2>
 
-      <ul class="choices-list">
-        @for(choice of question.choices; track choice.id) {
-          <li
-            (click)="selectAnswer(choice.id)"
-            class="choice-item"
-            [ngClass]="{
-              'selected': selectedAnswerId === choice.id && game_status === 'question_send',
-              'correct': game_status === 'show_answer' && choice.id === correctAnswerId,
-              'wrong': game_status === 'show_answer' && choice.id === selectedAnswerId && selectedAnswerId !== correctAnswerId
-            }"
-          >
-            {{ choice.text }}
-
-            @if(game_status === 'show_answer') {
-              <span class="count">
-                ({{ choice.responseCount || 0 }} votes)
-              </span>
-            }
-          </li>
-        }
-      </ul>
-    }
+    <!-- SCORE -->
     @else if(game_status === 'show_score') {
-      @if(globalScores) {
-        <h2>Scores globaux</h2>
-        <ul>
-          @for(score of globalScores; track score.userId) {
-            <li>
-              {{ score.score }} points - {{ score.userName }}
-            </li>
-          }
-        </ul>
-      }
-      @else {
-        <h2>Chargement des scores...</h2>
-      }
-      <ion-button (click)="exitGame()">Quitter la partie</ion-button>
+
+      <div class="score-container fade-in">
+
+        @if(globalScores) {
+          <h2>Final Scores</h2>
+
+          <ul class="score-list">
+            @for(score of globalScores; track score.userId) {
+              <li>
+                <strong>{{ score.userName }}</strong>
+                <span>{{ score.score }} pts</span>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p>Loading scores...</p>
+        }
+
+        <ion-button class="danger-btn" (click)="exitGame()">
+          Leave Game
+        </ion-button>
+
+      </div>
     }
-    @else if(game_status === 'closed') {
-      <h2>Statut inconnu</h2>
-    }
+
+    <!-- FALLBACK -->
     @else {
-      <h2>Statut inconnu</h2>
+      <div class="waiting-room">
+        <h2>Unknown state</h2>
+      </div>
     }
+
   }
-  @if(game_status !== 'show_score') {
-    <ion-button color="danger" (click)="confirmExit()">Quitter la partie</ion-button>
-  }
+
 </ion-content>

@@ -1,105 +1,154 @@
-/* Background de la page */
-ion-content {
+/* SAME app background */
+.home-content {
   --background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-  color: white;
-  font-family: 'Roboto', sans-serif;
 }
 
-/* Liste de choix / scores */
-li {
-  padding: 12px 16px;
-  margin: 8px 0;
-  border-radius: 8px;
-  cursor: pointer;
-  background-color: #eee;
-  color: #333;
-  font-weight: 500;
-  transition: 0.2s;
+/* Toolbar */
+.home-toolbar {
+  --background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+  --color: white;
 }
 
-li:hover {
-  transform: scale(1.02);
+/* Animation */
+.fade-in {
+  animation: fadeIn 0.3s ease;
 }
 
-/* Sélection / Réponses */
-li.selected {
-  background-color: #4da3ff; // bleu
-  color: white;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-li.correct {
-  background-color: #4caf50; // vert
-  color: white;
-}
-
-li.wrong {
-  background-color: #f44336; // rouge
-  color: white;
-}
-
-/* Affichage des votes */
-.count {
-  float: right;
-  font-weight: bold;
-  color: #222;
-}
-
-/* Zone d'attente */
+/* Waiting */
 .waiting-room {
   text-align: center;
-  padding: 1rem;
-  border: 2px solid #007bff;
-  border-radius: 10px;
-  max-width: 450px;
-  margin: 1rem auto;
-  background-color: rgba(255,255,255,0.1);
+  color: white;
+  margin-top: 40px;
 }
 
-.waiting-room h2 {
-  font-size: 1.6rem;
-  color: #fff;
-  margin-bottom: 0.5rem;
+/* Question */
+.question-container {
+  text-align: center;
+  color: white;
 }
 
-.waiting-room p {
-  font-size: 1rem;
-  color: #fff;
+.question-title {
+  font-size: 1.4rem;
+  font-weight: 700;
 }
 
-/* Boutons */
-ion-button {
-  margin-top: 12px;
-  --border-radius: 8px;
+.question-text {
+  margin: 15px 0 25px;
+  font-size: 1.1rem;
+}
+
+/* Kahoot-style grid */
+.choices-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: 110px;
+  gap: 8px;
+}
+
+/* Flat blocks */
+.choice-card {
+  border-radius: 12px;
+  padding: 10px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+
   font-weight: 600;
+  color: white;
+
+  transition: opacity 0.2s ease;
 }
 
-ion-button[color="danger"] {
-  --background: #f44336;
-  --color: white;
-  --box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
-
-ion-button[color="primary"] {
-  --background: #4da3ff;
-  --color: white;
-}
-
-/* QR Code (admin) */
-qrcode {
-  display: block;
-  margin: 1rem auto;
-}
-
-/* Question et titre */
-h2 {
+/* Icon */
+.choice-icon {
   font-size: 1.5rem;
-  margin-bottom: 1rem;
-  color: #fff;
 }
 
-/* Scroll et padding */
-ul {
+/* Text */
+.choice-text {
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* Kahoot-like colors */
+.color-0 { background: #ff5c7a; }  /* red */
+.color-1 { background: #5aa9ff; }  /* blue */
+.color-2 { background: #ffd95a; color: #2d3436; } /* yellow */
+.color-3 { background: #5be7a9; }  /* green */
+
+/* Default slightly dim */
+.choice-card {
+  opacity: 0.85;
+}
+
+/* During answering */
+.choice-card.selected {
+  opacity: 1;
+}
+
+/* When selected → fade others */
+.choices-grid:has(.selected) .choice-card:not(.selected) {
+  opacity: 0.4;
+}
+
+/* RESULTS MODE */
+.choices-grid:has(.correct) .choice-card {
+  opacity: 0.3;
+}
+
+/* Correct answer fully visible */
+.choice-card.correct {
+  opacity: 1;
+}
+
+/* Selection feedback */
+.selection-text {
+  margin-top: 15px;
+  text-align: center;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* Scores */
+.score-container {
+  text-align: center;
+  color: white;
+}
+
+.score-list {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 20px 0;
+}
+
+.score-list li {
+  background: white;
+  color: #2d3436;
+  margin-bottom: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Buttons */
+.danger-btn {
+  --background: #e74c3c;
+  margin-top: 20px;
+  font-weight: 600;
 }

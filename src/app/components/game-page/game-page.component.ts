@@ -3,12 +3,19 @@ import { ActivatedRoute } from '@angular/router';
 import { firstValueFrom, Observable } from 'rxjs';
 import { Room } from '../../models/room';
 import { GameService } from '../../services/game-service';
-import { IonButton, IonContent, AlertController } from '@ionic/angular/standalone';
+import { IonButton, IonContent, AlertController, IonButtons, IonTitle, IonToolbar, IonHeader, IonIcon } from '@ionic/angular/standalone';
 import { AsyncPipe, NgClass } from '@angular/common';
 import { GameQuestion } from 'src/app/models/gameQuestion';
 import { user, Auth } from '@angular/fire/auth';
 import { GameResult } from 'src/app/models/gameResult';
 import { Player } from 'src/app/models/player';
+import { addIcons } from 'ionicons';
+import {
+  triangle,
+  square,
+  ellipse,
+  diamond
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-game-room',
@@ -18,8 +25,13 @@ import { Player } from 'src/app/models/player';
     IonContent,
     AsyncPipe,
     NgClass,
-    IonButton
-  ]
+    IonButton,
+    IonButtons,
+    IonTitle,
+    IonToolbar,
+    IonHeader,
+    IonIcon
+]
 })
 export class GameRoomPage implements OnInit {
 
@@ -44,7 +56,14 @@ export class GameRoomPage implements OnInit {
     private gameService: GameService,
     private auth: Auth,
     private alertCtrl: AlertController
-  ) {}
+  ) {
+    addIcons({
+      triangle,
+      square,
+      ellipse,
+      diamond
+    });
+  }
 
   async ngOnInit() {
     this.roomId = this.route.snapshot.paramMap.get('id')!;
@@ -154,4 +173,22 @@ export class GameRoomPage implements OnInit {
   exitGame() {
     window.location.href = '/';
   }
-}
+
+
+  getIcon(index: number): string {
+    const icons = [
+      'triangle',
+      'square',
+      'ellipse',
+      'diamond'
+    ];
+    return icons[index] || 'help';
+  }
+
+  getChoiceTextById(choiceId: string | null): string {
+    if (!choiceId) return '';
+
+    const found = this.question.choices.find((c) => c.id === choiceId);
+    return found?.text ?? '';
+  }
+} 
