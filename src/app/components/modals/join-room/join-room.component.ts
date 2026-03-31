@@ -23,6 +23,7 @@ import { user } from '@angular/fire/auth';
   selector: 'app-join-room',
   standalone: true,
   templateUrl: './join-room.component.html',
+  styleUrl: './join-room.component.scss',
   imports: [
     IonHeader,
     IonLabel,
@@ -41,12 +42,30 @@ export class JoinRoomComponent {
   roomId: string = '';
   error: string = '';
 
+  userId = '';
+
   constructor(
     private modalCtrl: ModalController,
     private gameService: GameService,
     private navCtrl: NavController,
     private auth: Auth
   ) {}
+
+  async ngOnInit() {
+    const currentUser = await firstValueFrom(user(this.auth));
+
+    if (!currentUser) {
+      this.error = 'Utilisateur non connecté';
+      return;
+    }
+
+    this.userId = currentUser.uid;
+    const roomId = await this.gameService.getRoomByPlayer(this.userId);
+    if(roomId) {
+      await this.modalCtrl.dismiss();
+      this.navCtrl.navigateForward(`/game-room/${roomId}`);
+    }
+  }
 
   async join() {
     this.error = '';
@@ -56,18 +75,8 @@ export class JoinRoomComponent {
       return;
     }
 
-    // 🔹 Get current logged user
-    const currentUser = await firstValueFrom(user(this.auth));
-
-    if (!currentUser) {
-      this.error = 'Utilisateur non connecté';
-      return;
-    }
-
-    const userId = currentUser.uid;
-
     // 🔹 Join room with userId
-    const result = await this.gameService.joinRoom(this.roomId, userId);
+    const result = await this.gameService.joinRoom(this.roomId, this.userId);
 
     if (!result.success) {
       this.error = result.message || 'Erreur';

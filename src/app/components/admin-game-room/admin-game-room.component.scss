@@ -1,12 +1,27 @@
+/* Background de la page */
+ion-content {
+  --background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+  color: white;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Liste de choix / scores */
 li {
-  padding: 10px;
+  padding: 12px 16px;
   margin: 8px 0;
   border-radius: 8px;
   cursor: pointer;
   background-color: #eee;
+  color: #333;
+  font-weight: 500;
   transition: 0.2s;
 }
 
+li:hover {
+  transform: scale(1.02);
+}
+
+/* Sélection / Réponses */
 li.selected {
   background-color: #4da3ff; // bleu
   color: white;
@@ -22,27 +37,69 @@ li.wrong {
   color: white;
 }
 
+/* Affichage des votes */
 .count {
   float: right;
   font-weight: bold;
+  color: #222;
 }
 
+/* Zone d'attente */
 .waiting-room {
   text-align: center;
   padding: 1rem;
-  border: 1px solid #007bff;
-  border-radius: 6px;
-  max-width: 400px;
+  border: 2px solid #007bff;
+  border-radius: 10px;
+  max-width: 450px;
   margin: 1rem auto;
+  background-color: rgba(255,255,255,0.1);
 }
 
 .waiting-room h2 {
-  font-size: 1.5rem;
-  color: #007bff;
+  font-size: 1.6rem;
+  color: #fff;
   margin-bottom: 0.5rem;
 }
 
 .waiting-room p {
   font-size: 1rem;
-  color: #333;
+  color: #fff;
+}
+
+/* Boutons */
+ion-button {
+  margin-top: 12px;
+  --border-radius: 8px;
+  font-weight: 600;
+}
+
+ion-button[color="danger"] {
+  --background: #f44336;
+  --color: white;
+  --box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+ion-button[color="primary"] {
+  --background: #4da3ff;
+  --color: white;
+}
+
+/* QR Code (admin) */
+qrcode {
+  display: block;
+  margin: 1rem auto;
+}
+
+/* Question et titre */
+h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #fff;
+}
+
+/* Scroll et padding */
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }

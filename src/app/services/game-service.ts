@@ -7,7 +7,7 @@ import { QuizService } from './quiz-service';
 import { GameQuestion } from '../models/gameQuestion';
 import { Player } from '../models/player';
 import { GameResult } from '../models/gameResult';
-import { writeBatch } from 'firebase/firestore';
+import { deleteDoc, writeBatch } from 'firebase/firestore';
 
 @Injectable({
   providedIn: 'root',
@@ -107,6 +107,16 @@ export class GameService {
     });
 
     return { success: true };
+  }
+  async leaveRoom(roomId: string, userId: string) {
+    try {
+      const playerRef = doc(this.firestore, `rooms/${roomId}/players/${userId}`);
+      await deleteDoc(playerRef);
+      return { success: true };
+    } catch (error) {
+      console.error('Error leaving room:', error);
+      return { success: false, message: 'Failed to leave room' };
+    }
   }
 
   /**
@@ -367,5 +377,23 @@ export class GameService {
     }
 
     return globalScores;
+  }
+  async getRoomByPlayer(userId: string): Promise<string | null> {
+    try {
+      const roomsRef = collection(this.firestore, 'rooms');
+      const roomsSnap = await getDocs(roomsRef);
+      
+      for (const roomDoc of roomsSnap.docs) {
+        const playerRef = doc(this.firestore, `rooms/${roomDoc.id}/players/${userId}`);
+        const playerSnap = await getDoc(playerRef);
+        if (playerSnap.exists()) {
+          return roomDoc.id;
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error('Error checking room for player:', error);
+      return null;
+    }
   }
 }

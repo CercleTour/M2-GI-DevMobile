@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { firstValueFrom, Observable } from 'rxjs';
 import { Room } from '../../models/room';
 import { GameService } from '../../services/game-service';
-import { IonButton, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonFab, IonFabButton, IonIcon, ModalController } from '@ionic/angular/standalone';
+import { IonButton, IonContent, AlertController } from '@ionic/angular/standalone';
 import { AsyncPipe, NgClass } from '@angular/common';
 import { GameQuestion } from 'src/app/models/gameQuestion';
 import { user, Auth } from '@angular/fire/auth';
@@ -42,7 +42,8 @@ export class GameRoomPage implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private gameService: GameService,
-    private auth: Auth
+    private auth: Auth,
+    private alertCtrl: AlertController
   ) {}
 
   async ngOnInit() {
@@ -120,6 +121,34 @@ export class GameRoomPage implements OnInit {
       choiceId,
       this.question!.index
     );
+  }
+
+
+  async confirmExit() {
+    const alert = await this.alertCtrl.create({
+      header: 'Quitter la partie',
+      message: "Une fois la partie quittée, vous ne ferez plus partie de la partie.",
+      buttons: [
+        {
+          text: 'Rester',
+          role: 'cancel'
+        },
+        {
+          text: 'Quitter',
+          role: 'destructive',
+          handler: async () => {
+            const result = await this.gameService.leaveRoom(this.roomId, this.userId);
+            if (result.success) {
+              this.exitGame();
+            } else {
+              console.error(result.message);
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 
   exitGame() {

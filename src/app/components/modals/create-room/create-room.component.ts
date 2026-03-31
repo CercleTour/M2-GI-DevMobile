@@ -21,6 +21,7 @@ import { firstValueFrom } from 'rxjs';
 @Component({
   selector: 'app-create-room',
   templateUrl: './create-room.component.html',
+  styleUrl: './create-room.component.scss',
   standalone: true,
   imports: [
     IonHeader,

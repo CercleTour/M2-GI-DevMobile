@@ -19,14 +19,15 @@
     <ion-button (click)="startGame()">Start 1ère question</ion-button>
   }
   @else if(game_status === 'question_send' || game_status === 'show_answer') {
-    <h2>
+    <h2 class="question-title">
       Question {{ question.index + 1 }} :
       {{ question.text }}
     </h2>
 
-    <ul>
+    <ul class="choices-list">
       @for(choice of question.choices; track choice.id) {
         <li
+          class="choice-item"
           [ngClass]="{'correct': game_status === 'show_answer' && choice.id === correctAnswerId}"
         >
           {{ choice.text }}
