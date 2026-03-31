@@ -1,0 +1,5 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target" : { "namespace": "android_app", "package_name": "com.thiscourseisascam.kahoot",
+               "sha256_cert_fingerprints": ["B8:EF:B0:10:69:4B:75:11:D6:A7:29:05:B8:EF:FB:40:E9:09:2C:4C:D2:D8:15:36:31:67:59:CE:35:EC:BD:72"] }
+}]
