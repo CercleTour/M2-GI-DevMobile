@@ -11,7 +11,12 @@
       <h2>En attente des joueurs...</h2>
       <p>{{ (players$ | async)?.length || "0" }} joueurs prêt à jouer</p>
     </div>
-      <ion-button (click)="startGame()">Start 1ère question</ion-button>
+    <qrcode
+      [qrdata]="qrCodeUrl"
+      [width]="220"
+      [errorCorrectionLevel]="'M'">
+    </qrcode>
+    <ion-button (click)="startGame()">Start 1ère question</ion-button>
   }
   @else if(game_status === 'question_send' || game_status === 'show_answer') {
     <h2>

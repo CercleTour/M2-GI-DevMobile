@@ -8,6 +8,7 @@ import { AsyncPipe, NgClass } from '@angular/common';
 import { Player } from 'src/app/models/player';
 import { GameQuestion } from 'src/app/models/gameQuestion';
 import { GameResult } from 'src/app/models/gameResult';
+import { QRCodeComponent } from 'angularx-qrcode';
 
 @Component({
   selector: 'app-admin-game-room',
@@ -20,7 +21,8 @@ import { GameResult } from 'src/app/models/gameResult';
     IonContent,
     IonButton,
     AsyncPipe,
-    NgClass
+    NgClass,
+    QRCodeComponent
   ]
 })
 export class AdminGameRoomComponent implements OnInit {
@@ -42,7 +44,8 @@ export class AdminGameRoomComponent implements OnInit {
     choices: []
   }
   // correctAnswerId: string | null = null;
-  
+  qrCodeUrl: string = '';
+
   constructor(
     private route: ActivatedRoute,
     private gameService: GameService
@@ -50,7 +53,8 @@ export class AdminGameRoomComponent implements OnInit {
   
   ngOnInit() {
     this.roomId = this.route.snapshot.paramMap.get('id')!;
-    
+    this.qrCodeUrl = `${window.location.origin}/qrcode/${this.roomId}`;
+
     this.room$ = this.gameService.watchRoom(this.roomId);
     this.players$ = this.gameService.watchPlayers(this.roomId);
 

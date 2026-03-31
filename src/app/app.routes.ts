@@ -56,6 +56,11 @@ export const routes: Routes = [
       import('./components/register-page/register-page.page').then(m => m.RegisterPagePage),
   },
 
+  {
+    path: 'qrcode/:id',
+    loadComponent: () =>
+      import('./components/qrcode-join-room/qrcode-join-room.component').then(m => m.QrcodeJoinRoomComponent),
+  },
   // redirect
   {
     path: '',
