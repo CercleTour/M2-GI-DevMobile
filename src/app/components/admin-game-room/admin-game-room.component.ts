@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonButtons, IonList, IonItem, IonLabel } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonButtons, IonList, IonItem, IonLabel, IonIcon } from '@ionic/angular/standalone';
 import { GameService } from 'src/app/services/game-service';
 import { Room } from 'src/app/models/room';
 import { Observable } from 'rxjs';
@@ -9,6 +9,13 @@ import { Player } from 'src/app/models/player';
 import { GameQuestion } from 'src/app/models/gameQuestion';
 import { GameResult } from 'src/app/models/gameResult';
 import { QRCodeComponent } from 'angularx-qrcode';
+import { addIcons } from 'ionicons';
+import {
+  triangle,
+  square,
+  ellipse,
+  diamond
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-admin-game-room',
@@ -22,8 +29,9 @@ import { QRCodeComponent } from 'angularx-qrcode';
     IonButton,
     AsyncPipe,
     NgClass,
-    QRCodeComponent
-  ]
+    QRCodeComponent,
+    IonIcon
+]
 })
 export class AdminGameRoomComponent implements OnInit {
   
@@ -49,7 +57,14 @@ export class AdminGameRoomComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private gameService: GameService
-  ) {}
+  ) {
+      addIcons({
+        triangle,
+        square,
+        ellipse,
+        diamond
+      });
+  }
   
   ngOnInit() {
     this.roomId = this.route.snapshot.paramMap.get('id')!;
@@ -134,5 +149,15 @@ export class AdminGameRoomComponent implements OnInit {
   async closeRoom() {
     await this.gameService.closeRoom(this.roomId);
     window.location.href = '/';
+  }
+
+  getIcon(index: number): string {
+    const icons = [
+      'triangle',
+      'square',
+      'ellipse',
+      'diamond'
+    ];
+    return icons[index] || 'help';
   }
 }

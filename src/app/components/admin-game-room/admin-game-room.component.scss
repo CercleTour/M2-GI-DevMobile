@@ -1,105 +1,147 @@
-/* Background de la page */
-ion-content {
+/* Keep your SAME background */
+.home-content {
   --background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+}
+
+/* Animation */
+.fade-in {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Waiting */
+.waiting-room {
+  text-align: center;
   color: white;
-  font-family: 'Roboto', sans-serif;
 }
 
-/* Liste de choix / scores */
-li {
-  padding: 12px 16px;
-  margin: 8px 0;
-  border-radius: 8px;
-  cursor: pointer;
-  background-color: #eee;
-  color: #333;
-  font-weight: 500;
-  transition: 0.2s;
+.qr-container {
+  margin: 25px 0;
+  display: flex;
+  justify-content: center;
 }
 
-li:hover {
+/* Question */
+.question-container {
+  text-align: center;
+  color: white;
+}
+
+.question-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.question-text {
+  margin: 15px 0 25px;
+  font-size: 1.1rem;
+}
+
+/* Grid */
+.choices-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/*  Card  */
+.choice-card {
+  height: 85px;
+  border-radius: 14px;
+  padding: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  font-weight: 600;
+  color: #2d3436;
+
+  transition: all 0.2s ease;
+}
+
+.choice-card:active {
+  transform: scale(0.96);
+}
+
+/* 🔥 Left side (icon + text) */
+.choice-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Icon */
+.choice-icon {
+  font-size: 1.4rem;
+}
+
+/* Text */
+.choice-text {
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+/* 🎨 Pastel colors */
+.color-0 { background: #ff7675; }  /* soft red */
+.color-1 { background: #74b9ff; }  /* soft blue */
+.color-2 { background: #ffeaa7; }  /* soft yellow */
+.color-3 { background: #55efc4; }  /* soft green */
+
+/* Correct answer highlight */
+.choice-card.correct {
+  border: 3px solid white;
+  box-shadow: 0 0 12px rgba(255,255,255,0.8);
   transform: scale(1.02);
 }
 
-/* Sélection / Réponses */
-li.selected {
-  background-color: #4da3ff; // bleu
-  color: white;
+/* Votes */
+.votes {
+  font-size: 0.8rem;
+  font-weight: 700;
 }
 
-li.correct {
-  background-color: #4caf50; // vert
-  color: white;
-}
-
-li.wrong {
-  background-color: #f44336; // rouge
-  color: white;
-}
-
-/* Affichage des votes */
-.count {
-  float: right;
-  font-weight: bold;
-  color: #222;
-}
-
-/* Zone d'attente */
-.waiting-room {
+/* Scores */
+.score-container {
   text-align: center;
-  padding: 1rem;
-  border: 2px solid #007bff;
-  border-radius: 10px;
-  max-width: 450px;
-  margin: 1rem auto;
-  background-color: rgba(255,255,255,0.1);
+  color: white;
 }
 
-.waiting-room h2 {
-  font-size: 1.6rem;
-  color: #fff;
-  margin-bottom: 0.5rem;
+.score-list {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
 }
 
-.waiting-room p {
-  font-size: 1rem;
-  color: #fff;
+.score-list li {
+  background: white;
+  color: #2d3436;
+  margin-bottom: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
 }
 
-/* Boutons */
-ion-button {
-  margin-top: 12px;
-  --border-radius: 8px;
+/* Buttons */
+.primary-btn {
+  --background: #00cec9;
+  margin-top: 20px;
   font-weight: 600;
 }
 
-ion-button[color="danger"] {
-  --background: #f44336;
-  --color: white;
-  --box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
-
-ion-button[color="primary"] {
-  --background: #4da3ff;
-  --color: white;
-}
-
-/* QR Code (admin) */
-qrcode {
-  display: block;
-  margin: 1rem auto;
-}
-
-/* Question et titre */
-h2 {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  color: #fff;
-}
-
-/* Scroll et padding */
-ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.danger-btn {
+  --background: #e74c3c;
+  margin-top: 20px;
+  font-weight: 600;
 }
