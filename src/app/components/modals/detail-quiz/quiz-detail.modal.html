@@ -2,27 +2,39 @@
 
   <div class="quiz-container">
 
-    <!-- Header -->
     <div class="header-row">
       <h1 class="app-name">
         {{ isEditing() ? 'Edit Quiz' : 'Quiz Details' }}
       </h1>
 
-      @if (!isEditing()) {
-        <div class="header-actions">
+      <div class="header-actions">
 
-          <!-- Edit -->
+        <!-- 🌍 Visibility toggle (ALWAYS visible, disabled if not owner) -->
+        <div class="visibility-toggle">
+          <ion-icon name="globe-outline"></ion-icon>
+
+          <span class="visibility-text">Public</span>
+
+          <ion-toggle
+            [checked]="editableQuiz()?.isPublic"
+            [disabled]="!isOwner()"
+            (ionChange)="setVisibility($event.detail.checked)"
+          ></ion-toggle>
+        </div>
+
+        <!-- ✏️ Edit (ONLY owner) -->
+        @if (!isEditing() && isOwner()) {
           <ion-button fill="clear" color="light" (click)="enableEdit()">
             <ion-icon name="create-outline"></ion-icon>
           </ion-button>
 
-          <!-- Delete -->
+          <!-- 🗑 Delete -->
           <ion-button fill="clear" color="danger" (click)="confirmDelete()">
             <ion-icon name="trash-outline"></ion-icon>
           </ion-button>
+        }
 
-        </div>
-      }
+      </div>
     </div>
 
     <!-- Title -->
@@ -141,6 +153,7 @@
                   Add answer
                 </ion-button>
               }
+
               @if (!isQuestionValid(question)) {
                 <p class="error-text">
                   Complete the question properly

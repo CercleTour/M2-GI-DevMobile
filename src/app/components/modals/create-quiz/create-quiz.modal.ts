@@ -58,7 +58,9 @@ export class CreateQuizModal {
     id: crypto.randomUUID(),
     title: '',
     description: '',
-    questions: []
+    questions: [],
+    authorId: '',
+    isPublic: false
   });
 
 

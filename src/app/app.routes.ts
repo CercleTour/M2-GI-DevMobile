@@ -27,12 +27,6 @@ export const routes: Routes = [
       import('./components/home-page/home-page.component').then(m => m.HomePageComponent),
   },
   {
-    path: 'form',
-    canActivate: [isAuthenticated],
-    loadComponent: () =>
-      import('./components/signal-form/signal-form.component').then(m => m.SignalFormComponent),
-  },
-  {
     path: 'game-room/:id',
     canActivate: [isAuthenticated],
     loadComponent: () =>

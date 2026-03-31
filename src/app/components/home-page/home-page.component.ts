@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { Quiz } from 'src/app/models/quiz';
 import { QuizService } from 'src/app/services/quiz-service';
 import { IonButton, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonFab, IonFabButton, IonIcon, ModalController, IonButtons, IonFooter } from '@ionic/angular/standalone';
@@ -18,6 +18,7 @@ import { CreateRoomComponent } from '../modals/create-room/create-room.component
 import { QuizDetailModal } from '../modals/detail-quiz/quiz-detail.modal';
 import { AuthService } from 'src/app/services/auth-service';
 import { Router } from '@angular/router';
+import { firstValueFrom, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-home-page',
@@ -38,31 +39,71 @@ import { Router } from '@angular/router';
     IonButton,
     IonButtons,
     IonFooter
-],
+  ],
 })
+export class HomePageComponent implements OnInit, OnDestroy {
 
-
-export class HomePageComponent  implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private modalCtrl = inject(ModalController);
-  quizzes: Quiz[] | null = null;
-  constructor(private quizService: QuizService) {
-    addIcons
-    ({  add,
-        addOutline,
-        logOutOutline,
-        playOutline,
-        enterOutline
-     });
-  }
-  
-  ngOnInit() {
-    this.quizzes = null;
 
-    this.quizService.getAll().subscribe((quizzes) => {
-      this.quizzes = quizzes;
+  quizzes: Quiz[] | null = null;
+  myQuizzes: Quiz[] | null = null;
+  publicQuizzes: Quiz[] | null = null;
+
+  private subscriptions = new Subscription();
+
+  constructor(private quizService: QuizService) {
+    addIcons({
+      add,
+      addOutline,
+      logOutOutline,
+      playOutline,
+      enterOutline
     });
+  }
+
+  ngOnInit() {
+    this.resetState();
+
+    const authSub = this.authService.getConnectedUser().subscribe(user => {
+      if (!user) return;
+
+      const mySub = this.quizService.getByUserId(user.uid).subscribe(my => {
+        this.myQuizzes = my;
+        this.updateCombined();
+      });
+
+      const pubSub = this.quizService.getOthersPublic(user.uid).subscribe(pub => {
+        this.publicQuizzes = pub;
+        this.updateCombined();
+      });
+
+      this.subscriptions.add(mySub);
+      this.subscriptions.add(pubSub);
+    });
+
+    this.subscriptions.add(authSub);
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+  }
+
+  private resetState() {
+    this.quizzes = null;
+    this.myQuizzes = null;
+    this.publicQuizzes = null;
+  }
+
+  private updateCombined() {
+    if (!this.myQuizzes || !this.publicQuizzes) return;
+
+    const filteredPublic = this.publicQuizzes.filter(
+      pub => !this.myQuizzes!.some(my => my.id === pub.id)
+    );
+
+    this.quizzes = [...this.myQuizzes, ...filteredPublic];
   }
 
   async createQuiz() {
@@ -78,16 +119,21 @@ export class HomePageComponent  implements OnInit {
       try {
         const quiz: Quiz = result.data;
 
-        await this.quizService.saveQuiz(quiz);
+        const user = await firstValueFrom(this.authService.getConnectedUser());
+        if (!user) {
+          throw new Error('User not authenticated');
+        }
 
-        console.log('Quiz saved to Firebase:', quiz.id);
+        quiz.authorId = user.uid;
+        quiz.isPublic = false;
+
+        await this.quizService.saveQuiz(quiz);
 
       } catch (error) {
         console.error('Error saving quiz:', error);
       }
     }
   }
-
 
   async openQuiz(quiz: Quiz) {
     try {
@@ -107,9 +153,10 @@ export class HomePageComponent  implements OnInit {
     const modal = await this.modalCtrl.create({
       component: JoinRoomComponent
     });
-    
+
     await modal.present();
   }
+
   async openCreateRoomModal() {
     const modal = await this.modalCtrl.create({
       component: CreateRoomComponent,
@@ -122,7 +169,16 @@ export class HomePageComponent  implements OnInit {
   }
 
   async logout() {
+    // 🔥 stop all live subscriptions
+    this.subscriptions.unsubscribe();
+
+    // 🧹 clear local state
+    this.resetState();
+
+    // 🔐 logout
     await this.authService.logout();
+
+    // 🚀 redirect
     this.router.navigateByUrl('/login-page');
   }
 }

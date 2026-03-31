@@ -1,131 +1,161 @@
-  import { inject, Injectable } from '@angular/core';
-  import { from, Observable, of, switchMap, tap } from 'rxjs';
-  import { Quiz } from '../models/quiz';
-  import {
-    Firestore,
-    collection,
-    collectionData,
-    doc,
-    docData,
-    addDoc,
-    deleteDoc,
-    updateDoc,
-    getDoc,
-    setDoc
-  } from '@angular/fire/firestore';
+    import { inject, Injectable } from '@angular/core';
+    import { combineLatest, from, Observable, of, switchMap, tap } from 'rxjs';
+    import { Quiz } from '../models/quiz';
+    import {
+      Firestore,
+      collection,
+      collectionData,
+      doc,
+      docData,
+      addDoc,
+      deleteDoc,
+      updateDoc,
+      getDoc,
+      setDoc,
+      query,
+      where,
+    } from '@angular/fire/firestore';
 
-  @Injectable({
-    providedIn: 'root',
-  })
-  export class QuizService {
+    @Injectable({
+      providedIn: 'root',
+    })
+    export class QuizService {
 
-    private firestore: Firestore = inject(Firestore);
+      private firestore: Firestore = inject(Firestore);
 
-    private quizzes: Quiz[] = [
-      {
-        id: '000',
-        title: 'Quiz 0',
-        questions: [],
-        description: '1st quiz, with id 000'
+      private quizzes: Quiz[] = [];
+
+      getAll(): Observable<Quiz[]> {
+        const quizzesCollection = collection(this.firestore, 'quizzes');
+
+        return collectionData(quizzesCollection, { idField: 'id' }).pipe(
+          switchMap(async (quizzes: any[]) => {
+
+            const result = await Promise.all(
+              quizzes.map(async quiz => {
+                const questions = await this.loadQuestions(quiz.questions);       
+                return {
+                  ...quiz,
+                  questions
+                };
+              })
+            );
+
+            return result;
+          })
+        );
       }
-    ];
 
-    getAll(): Observable<Quiz[]> {
-      const quizzesCollection = collection(this.firestore, 'quizzes');
+      getById(quizId: string): Observable<Quiz | undefined> {
+        const quizRef = doc(this.firestore, `quizzes/${quizId}`);
 
-      return collectionData(quizzesCollection, { idField: 'id' }).pipe(
-        switchMap(async (quizzes: any[]) => {
+        return docData(quizRef, { idField: 'id' }).pipe(
+          switchMap(async (quiz: any) => {
+            if (!quiz) return undefined;
 
-          const result = await Promise.all(
-            quizzes.map(async quiz => {
-              const questions = await this.loadQuestions(quiz.questions);       
-              return {
+            const questions = await this.loadQuestions(quiz.questions);
+            return {
+              ...quiz,
+              questions
+            };
+          })
+        );
+      }
+      
+      getByUserId(userId: string): Observable<Quiz[]> {
+        const quizzesCollection = collection(this.firestore, 'quizzes');
+
+        const q = query(quizzesCollection, where('authorId', '==', userId));
+
+        return collectionData(q, { idField: 'id' }).pipe(
+          switchMap(async (quizzes: any[]) => {
+            return Promise.all(
+              quizzes.map(async quiz => ({
                 ...quiz,
-                questions
-              };
-            })
-          );
+                questions: await this.loadQuestions(quiz.questions)
+              }))
+            );
+          })
+        );
+      }
 
-          return result;
-        })
-      );
-  }
+      getPublic(): Observable<Quiz[]> {
+        const quizzesCollection = collection(this.firestore, 'quizzes');
 
-    getById(quizId: string): Observable<Quiz | undefined> {
+        const q = query(quizzesCollection, where('isPublic', '==', true));
+
+        return collectionData(q, { idField: 'id' }).pipe(
+          switchMap(async (quizzes: any[]) => {
+            return Promise.all(
+              quizzes.map(async quiz => ({
+                ...quiz,
+                questions: await this.loadQuestions(quiz.questions)
+              }))
+            );
+          })
+        );
+      }
+
+      getOthersPublic(userId: string): Observable<Quiz[]> {
+        const quizzesCollection = collection(this.firestore, 'quizzes');
+
+        const q = query(quizzesCollection, where('isPublic', '==', true));
+
+        return collectionData(q, { idField: 'id' }).pipe(
+          switchMap(async (quizzes: any[]) => {
+
+            console.log('🌍 All public quizzes:', quizzes);
+
+            // 🔥 filter out current user's quizzes
+            const others = quizzes.filter(q => q.authorId !== userId);
+
+            console.log('👥 Public quizzes from others:', others);
+
+            return Promise.all(
+              others.map(async quiz => ({
+                ...quiz,
+                questions: await this.loadQuestions(quiz.questions)
+              }))
+            );
+          })
+        );
+      }
+
+      async loadQuestions(questionRefs: any[]) {
+        const questions = await Promise.all(
+          questionRefs.map(ref => getDoc(ref))
+        );
+
+        return questions.map(q => ({
+          id: q.id,
+          ...(q.data() as any)
+        }));
+      }
+
+    async deleteQuiz(quizId: string): Promise<void> {
       const quizRef = doc(this.firestore, `quizzes/${quizId}`);
 
-      return docData(quizRef, { idField: 'id' }).pipe(
-        switchMap(async (quiz: any) => {
-          if (!quiz) return undefined;
+      // 1. Get quiz data
+      const quizSnap = await getDoc(quizRef);
 
-          const questions = await this.loadQuestions(quiz.questions);
-          return {
-            ...quiz,
-            questions
-          };
-        })
+      if (!quizSnap.exists()) {
+        console.warn('Quiz not found');
+        return;
+      }
+
+      const quizData = quizSnap.data();
+
+      // 2. Extract question refs
+      const questionRefs = quizData['questions'] || [];
+
+      // 3. Delete all questions
+      await Promise.all(
+        questionRefs.map((ref: any) => deleteDoc(ref))
       );
+
+      // 4. Delete quiz
+      await deleteDoc(quizRef);
     }
-    
-    async loadQuestions(questionRefs: any[]) {
-      const questions = await Promise.all(
-        questionRefs.map(ref => getDoc(ref))
-      );
-
-      return questions.map(q => ({
-        id: q.id,
-        ...(q.data() as any)
-      }));
-    }
-    
-    async addQuiz(quiz: Quiz): Promise<string> {
-      const quizzesCollection = collection(this.firestore, 'quizzes');
-      const questionsCollection = collection(this.firestore, 'questions');
-
-      // 1. Create all questions first
-      const questionRefs = await Promise.all(
-        quiz.questions.map(q =>
-          addDoc(questionsCollection, {
-            text: q.text,
-            choices: q.choices,
-            correctChoiceId: q.correctChoiceId
-          })
-        )
-      );
-      // 2. Create quiz with references
-      const quizDoc = await addDoc(quizzesCollection, {
-        title: quiz.title,
-        description: quiz.description,
-        questions: questionRefs
-      });
-      
-      return quizDoc.id;
-    }
-
-  async deleteQuiz(quizId: string): Promise<void> {
-    const quizRef = doc(this.firestore, `quizzes/${quizId}`);
-
-    // 1. Get quiz data
-    const quizSnap = await getDoc(quizRef);
-
-    if (!quizSnap.exists()) {
-      console.warn('Quiz not found');
-      return;
-    }
-
-    const quizData = quizSnap.data();
-
-    // 2. Extract question refs
-    const questionRefs = quizData['questions'] || [];
-
-    // 3. Delete all questions
-    await Promise.all(
-      questionRefs.map((ref: any) => deleteDoc(ref))
-    );
-
-    // 4. Delete quiz
-    await deleteDoc(quizRef);
-  }
 
     async saveQuiz(quiz: Quiz): Promise<void> {
       const quizRef = doc(this.firestore, 'quizzes', quiz.id);
@@ -135,11 +165,10 @@
       const questionRefs = await Promise.all(
         quiz.questions.map(async (q, index) => {
           const questionRef = doc(questionsCollection, q.id);
-
           await setDoc(questionRef, {
             text: q.text,
             choices: q.choices,
-            correctChoiceId: q.correctChoiceId
+            correctChoiceId: q.correctChoiceId,
           });
 
           return questionRef;
@@ -149,7 +178,17 @@
       await setDoc(quizRef, {
         title: quiz.title,
         description: quiz.description,
-        questions: questionRefs
+        questions: questionRefs,
+        authorId: quiz.authorId,
+        isPublic: quiz.isPublic
+      });
+    }
+
+    async toggleVisibility(quizId: string, isPublic: boolean): Promise<void> {
+      const quizRef = doc(this.firestore, `quizzes/${quizId}`);
+
+      await updateDoc(quizRef, {
+        isPublic
       });
     }
   }

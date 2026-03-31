@@ -1,6 +1,6 @@
 import { Component, Input, inject, signal } from '@angular/core';
 import { Quiz } from 'src/app/models/quiz';
-import { ModalController } from '@ionic/angular/standalone';
+import { ModalController, IonLabel, IonToggle } from '@ionic/angular/standalone';
 import { QuizService } from 'src/app/services/quiz-service';
 import { AlertController } from '@ionic/angular/standalone';
 import { Question } from 'src/app/models/question';
@@ -34,6 +34,8 @@ import {
   IonRadioGroup,
   IonIcon
 } from "@ionic/angular/standalone";
+import { AuthService } from 'src/app/services/auth-service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-quiz-detail-modal',
@@ -56,8 +58,10 @@ import {
     IonCardContent,
     IonRadio,
     IonRadioGroup,
-    IonIcon
-  ]
+    IonIcon,
+    IonLabel,
+    IonToggle
+]
 })
 export class QuizDetailModal {
 
@@ -66,9 +70,12 @@ export class QuizDetailModal {
   private modalCtrl = inject(ModalController);
   private quizService = inject(QuizService);
   private alertCtrl = inject(AlertController);
-
+  private authService = inject(AuthService);
   isEditing = signal(false);
   editableQuiz = signal<Quiz | null>(null);
+  isOwner = signal(false);
+  currentUserId: string | null = null;
+
   constructor() {
     addIcons({
       createOutline,
@@ -81,12 +88,19 @@ export class QuizDetailModal {
       readerOutline
     });
   }
-  ngOnInit() {
-    // clone to avoid mutating original directly
+  async ngOnInit() {
     this.editableQuiz.set(structuredClone(this.quiz));
+
+    const user = await firstValueFrom(this.authService.getConnectedUser());
+
+    if (user) {
+      this.currentUserId = user.uid;
+      this.isOwner.set(this.quiz.authorId === user.uid);
+    }
   }
 
-    enableEdit() {
+  enableEdit() {
+    if (!this.isOwner()) return;
     this.isEditing.set(true);
   }
 
@@ -261,6 +275,8 @@ export class QuizDetailModal {
   }
 
   async save() {
+    if (!this.isOwner()) return;
+
     const quiz = this.editableQuiz();
 
     if (!quiz || !this.isQuizValid()) return;
@@ -299,11 +315,29 @@ export class QuizDetailModal {
     await alert.present();
   }
 
-    async deleteQuiz() {
+  async deleteQuiz() {
+    if (!this.isOwner()) return;
+
     if (!this.quiz?.id) return;
 
     await this.quizService.deleteQuiz(this.quiz.id);
 
     this.modalCtrl.dismiss();
+  }
+
+  async setVisibility(isPublic: boolean) {
+    const quiz = this.editableQuiz();
+    if (!quiz?.id) return;
+
+    try {
+      await this.quizService.toggleVisibility(quiz.id, isPublic);
+
+      this.editableQuiz.update(q =>
+        q ? { ...q, isPublic } : q
+      );
+
+    } catch (error) {
+      console.error('Error updating visibility:', error);
+    }
   }
 }

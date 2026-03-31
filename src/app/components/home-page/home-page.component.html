@@ -17,29 +17,29 @@
     <h1 class="app-name">Choose a quiz or create your own!</h1>
   </div>
 
-  @if (quizzes === null) {
+  @if (myQuizzes === null || publicQuizzes === null) {
 
-    <!-- Loading state  -->
-    <div class="empty-state">
-      <p>Loading quizzes...</p>
-    </div>
+  <div class="empty-state">
+    <p>Loading quizzes...</p>
+  </div>
 
-  } @else if (quizzes.length === 0) {
+} @else if (myQuizzes.length === 0 && publicQuizzes.length === 0) {
 
-    <!-- Empty state -->
-    <div class="empty-state">
-      <h2>No quizzes?</h2>
-      <p>Create your own! 🚀</p>
+  <!-- Empty -->
+  <div class="empty-state">
+    <h2>No quizzes?</h2>
+    <p>Create your own! 🚀</p>
 
-      <ion-button (click)="createQuiz()" class="empty-create-btn">
-        <ion-icon name="add-outline" slot="start"></ion-icon>
-        Create Quiz
-      </ion-button>
-    </div>
+    <ion-button (click)="createQuiz()" class="empty-create-btn">
+      <ion-icon name="add-outline" slot="start"></ion-icon>
+      Create Quiz
+    </ion-button>
+  </div>
 
-  } @else {
+} @else {
 
-    <!-- Loaded -->
+  <!-- MY QUIZZES -->
+  @if (myQuizzes.length > 0) {
     <div class="section-title">
       <h2>Your quizzes</h2>
     </div>
@@ -47,7 +47,7 @@
     <div class="quiz-grid">
       <ion-grid>
         <ion-row>
-          @for(quiz of quizzes; track quiz.id) {
+          @for(quiz of myQuizzes; track quiz.id) {
             <ion-col size="6" size-md="4" size-lg="3">
               <app-quiz-card 
                 [quiz]="quiz"
@@ -58,8 +58,31 @@
         </ion-row>
       </ion-grid>
     </div>
-
   }
+
+  <!-- PUBLIC QUIZZES -->
+  @if (publicQuizzes.length > 0) {
+    <div class="section-title">
+      <h2>Public quizzes</h2>
+    </div>
+
+    <div class="quiz-grid">
+      <ion-grid>
+        <ion-row>
+          @for(quiz of publicQuizzes; track quiz.id) {
+            <ion-col size="6" size-md="4" size-lg="3">
+              <app-quiz-card 
+                [quiz]="quiz"
+                (quizClick)="openQuiz($event)">
+              </app-quiz-card>
+            </ion-col>
+          }
+        </ion-row>
+      </ion-grid>
+    </div>
+  }
+
+}
 
   <!-- FAB (Create Quiz) -->
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
