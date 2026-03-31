@@ -68,7 +68,8 @@ export class AdminGameRoomComponent implements OnInit {
   
   ngOnInit() {
     this.roomId = this.route.snapshot.paramMap.get('id')!;
-    this.qrCodeUrl = `${window.location.origin}/qrcode/${this.roomId}`;
+    // this.qrCodeUrl = `${window.location.origin}/qrcode/${this.roomId}`;
+    this.qrCodeUrl = `https://CercleTour.github.io/qrcode/${this.roomId}`;
 
     this.room$ = this.gameService.watchRoom(this.roomId);
     this.players$ = this.gameService.watchPlayers(this.roomId);
