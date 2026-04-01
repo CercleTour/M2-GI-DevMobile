@@ -19,9 +19,13 @@ export class AppComponent {
         try {
           const url = new URL(event.url);
           if (url.hostname.toLowerCase() === 'pepp3rrr.github.io') {
-            const appPath = url.pathname;
+            const basePath = '/M2-GI-DevMobile';
 
+            let appPath = url.pathname;
             if (appPath) {
+              if (appPath.startsWith(basePath)) {
+                appPath = appPath.replace(basePath, '');
+              }
               this.router.navigateByUrl(appPath);
             }
           }
