@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom, Observable } from 'rxjs';
 import { Room } from '../../models/room';
 import { GameService } from '../../services/game-service';
@@ -31,7 +31,7 @@ import {
     IonToolbar,
     IonHeader,
     IonIcon
-]
+  ]
 })
 export class GameRoomPage implements OnInit {
 
@@ -53,6 +53,7 @@ export class GameRoomPage implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private gameService: GameService,
     private auth: Auth,
     private alertCtrl: AlertController
@@ -69,7 +70,7 @@ export class GameRoomPage implements OnInit {
     this.roomId = this.route.snapshot.paramMap.get('id')!;
 
     const currentUser = await firstValueFrom(user(this.auth));
-    if (!currentUser) { 
+    if (!currentUser) {
       throw new Error('User not authenticated');
     }
     this.userId = currentUser.uid;
@@ -79,15 +80,15 @@ export class GameRoomPage implements OnInit {
 
     // écoute des changements
     this.room$.subscribe(room => {
-      console.dir(room, {depth: null});
+      console.dir(room, { depth: null });
       if (!room) return;
 
-      if(room.status === this.game_status) return; // pas de nouvel événement
+      if (room.status === this.game_status) return; // pas de nouvel événement
       this.game_status = room.status;
 
       console.log('New event received:', room);
 
-      switch(room.status) {
+      switch (room.status) {
         case 'waiting':
           break;
         case 'question_send':
@@ -100,13 +101,13 @@ export class GameRoomPage implements OnInit {
             });
           break;
         case 'show_answer':
-         this.gameService.getCorrectAnswerId(room.currentQuestionIndex, room.quizId)
-          .then(correctAnswerId => {
-            this.correctAnswerId = correctAnswerId;
-          })
-          .catch(error => {
-            console.error('Error fetching correct answer ID:', error);
-          });
+          this.gameService.getCorrectAnswerId(room.currentQuestionIndex, room.quizId)
+            .then(correctAnswerId => {
+              this.correctAnswerId = correctAnswerId;
+            })
+            .catch(error => {
+              console.error('Error fetching correct answer ID:', error);
+            });
           this.gameService.getResponseCounts(this.roomId).then(gameQuestion => {
             if (gameQuestion) {
               this.question = gameQuestion;
@@ -133,7 +134,7 @@ export class GameRoomPage implements OnInit {
     if (this.game_status !== 'question_send') return;
 
     this.selectedAnswerId = choiceId;
-    
+
     this.gameService.submitAnswer(
       this.roomId,
       this.userId,
@@ -171,7 +172,7 @@ export class GameRoomPage implements OnInit {
   }
 
   exitGame() {
-    window.location.href = '/';
+    this.router.navigateByUrl("/");
   }
 
 
@@ -191,4 +192,4 @@ export class GameRoomPage implements OnInit {
     const found = this.question.choices.find((c) => c.id === choiceId);
     return found?.text ?? '';
   }
-} 
+}
